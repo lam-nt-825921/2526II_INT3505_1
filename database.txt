@@ -1,0 +1,14 @@
+{
+    "1": {
+        "name": "Laptop Gaming",
+        "price": 2500,
+        "brand": "Asus",
+        "quantity": 100
+    },
+    "2": {
+        "name": "Macbook Air",
+        "price": 1200,
+        "brand": "Apple",
+        "quantity": 5
+    }
+}
