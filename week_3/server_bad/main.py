@@ -5,7 +5,6 @@ from datetime import datetime
 
 app = FastAPI(title="API Consistency Violations Demo")
 
-# Dummy Data
 users_db = [{"id": 1, "name": "Alice", "email": "alice@example.com", "created_at": "2023-10-27"}]
 orders_db = [{"id": 101, "item": "Laptop", "price": 1000, "is_active": True}]
 
