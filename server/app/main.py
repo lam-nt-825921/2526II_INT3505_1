@@ -11,8 +11,8 @@ app = FastAPI(
     version="3.0.0"
 )
 
-app.include_router(auth.router, prefix="/auth", tags=["Xác thực"])
-app.include_router(products.router, prefix="/products", tags=["Sản phẩm"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Xác thực"])
+app.include_router(products.router, prefix="/api/v1/products", tags=["Sản phẩm"])
 
 @app.get("/")
 def read_root():
