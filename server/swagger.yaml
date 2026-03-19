@@ -36,13 +36,13 @@ paths:
       tags:
       - Authentication
       summary: Login
-      description: Đăng nhập hệ thống (nhận Token)
+      description: Đăng nhập hệ thống bằng Form Data (tương thích nút Authorize)
       operationId: login_api_v1_auth_login_post
       requestBody:
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: '#/components/schemas/Body_login_api_v1_auth_login_post'
         required: true
       responses:
         '200':
@@ -525,13 +525,13 @@ paths:
       tags:
       - Authentication
       summary: Login
-      description: Đăng nhập hệ thống (nhận Token)
+      description: Đăng nhập hệ thống bằng Form Data (tương thích nút Authorize)
       operationId: login_api_v2_auth_login_post
       requestBody:
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: '#/components/schemas/Body_login_api_v2_auth_login_post'
         required: true
       responses:
         '200':
@@ -799,6 +799,76 @@ paths:
               schema: {}
 components:
   schemas:
+    Body_login_api_v1_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+          - type: string
+            pattern: ^password$
+          - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          format: password
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          format: password
+          title: Client Secret
+      type: object
+      required:
+      - username
+      - password
+      title: Body_login_api_v1_auth_login_post
+    Body_login_api_v2_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+          - type: string
+            pattern: ^password$
+          - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          format: password
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          format: password
+          title: Client Secret
+      type: object
+      required:
+      - username
+      - password
+      title: Body_login_api_v2_auth_login_post
     BookCreate:
       properties:
         title:
@@ -1074,19 +1144,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    LoginRequest:
-      properties:
-        username:
-          type: string
-          title: Username
-        password:
-          type: string
-          title: Password
-      type: object
-      required:
-      - username
-      - password
-      title: LoginRequest
     RegisterRequest:
       properties:
         username:

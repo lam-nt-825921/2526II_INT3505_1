@@ -14,7 +14,6 @@ class User(Base):
     phone = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Relationships
     books = relationship("Book", back_populates="owner")
     collections = relationship("Collection", back_populates="owner")
     borrowed_records = relationship("BorrowRecord", foreign_keys="[BorrowRecord.borrower_id]", back_populates="borrower")
