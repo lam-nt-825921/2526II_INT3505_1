@@ -1,0 +1,1209 @@
+openapi: 3.1.0
+info:
+  title: Library API
+  description: API quản lý thư viện sách trực tuyến, hỗ trợ Chủ sách và Người đọc
+    theo chuẩn OpenAPI
+  version: 1.0.0
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+      - Authentication
+      summary: Register
+      description: Đăng ký tài khoản mới
+      operationId: register_api_v1_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Login
+      description: Đăng nhập hệ thống (nhận Token)
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/users/{id}:
+    get:
+      tags:
+      - Users
+      summary: Get User Public Info
+      description: Xem thông tin công khai của người dùng
+      operationId: get_user_public_info_api_v1_users__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/books:
+    get:
+      tags:
+      - Books
+      summary: Get Books
+      description: Tìm kiếm và lấy danh sách sách
+      operationId: get_books_api_v1_books_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BookResponse'
+                type: array
+                title: Response Get Books Api V1 Books Get
+    post:
+      tags:
+      - Books
+      summary: Create Book
+      description: Đăng sách mới
+      operationId: create_book_api_v1_books_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/books/{id}:
+    get:
+      tags:
+      - Books
+      summary: Get Book
+      description: Xem chi tiết cuốn sách
+      operationId: get_book_api_v1_books__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Books
+      summary: Update Book
+      description: Sửa thông tin sách (yêu cầu quyền Chủ sách)
+      operationId: update_book_api_v1_books__id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Books
+      summary: Delete Book
+      description: Xóa sách (yêu cầu quyền Chủ sách)
+      operationId: delete_book_api_v1_books__id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/collections:
+    get:
+      tags:
+      - Collections
+      summary: Get Collections
+      description: Tìm kiếm và lấy danh sách bộ sưu tập
+      operationId: get_collections_api_v1_collections_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CollectionResponse'
+                type: array
+                title: Response Get Collections Api V1 Collections Get
+    post:
+      tags:
+      - Collections
+      summary: Create Collection
+      description: Tạo bộ sưu tập sách mới
+      operationId: create_collection_api_v1_collections_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/collections/{id}:
+    get:
+      tags:
+      - Collections
+      summary: Get Collection
+      description: Xem chi tiết bộ sưu tập (bao gồm các sách bên trong)
+      operationId: get_collection_api_v1_collections__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Collections
+      summary: Update Collection
+      description: Sửa thông tin bộ sưu tập (yêu cầu là chủ bộ sưu tập)
+      operationId: update_collection_api_v1_collections__id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Collections
+      summary: Delete Collection
+      description: Xóa bộ sưu tập (yêu cầu là chủ bộ sưu tập)
+      operationId: delete_collection_api_v1_collections__id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/borrows:
+    get:
+      tags:
+      - Borrow Records
+      summary: Get Borrows
+      description: Lấy danh sách lịch mượn tài khoản đang tham gia (đơn đi mượn hoặc
+        đơn người khác mượn sách của mình)
+      operationId: get_borrows_api_v1_borrows_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BorrowRecordResponse'
+                type: array
+                title: Response Get Borrows Api V1 Borrows Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - Borrow Records
+      summary: Create Borrow
+      description: Tạo đơn mượn (truyền book_id hoặc collection_id)
+      operationId: create_borrow_api_v1_borrows_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowRecordCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/borrows/{id}:
+    get:
+      tags:
+      - Borrow Records
+      summary: Get Borrow
+      description: Xem chi tiết một lịch mượn cụ thể
+      operationId: get_borrow_api_v1_borrows__id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/borrows/{id}/status:
+    patch:
+      tags:
+      - Borrow Records
+      summary: Update Borrow Status
+      description: Cập nhật trạng thái duyệt/từ chối hoặc trả sách (dành cho chủ sách/người
+        mượn)
+      operationId: update_borrow_status_api_v1_borrows__id__status_patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowRecordUpdateStatus'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/books:
+    get:
+      tags:
+      - Books V2
+      summary: Get Books V2
+      description: Phiên bản V2 của API lấy sách (Đã được nâng cấp)
+      operationId: get_books_v2_api_v2_books_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v2/users/{id}:
+    get:
+      tags:
+      - Users
+      summary: Get User Public Info
+      description: Xem thông tin công khai của người dùng
+      operationId: get_user_public_info_api_v2_users__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/auth/register:
+    post:
+      tags:
+      - Authentication
+      summary: Register
+      description: Đăng ký tài khoản mới
+      operationId: register_api_v2_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Login
+      description: Đăng nhập hệ thống (nhận Token)
+      operationId: login_api_v2_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/collections:
+    get:
+      tags:
+      - Collections
+      summary: Get Collections
+      description: Tìm kiếm và lấy danh sách bộ sưu tập
+      operationId: get_collections_api_v2_collections_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CollectionResponse'
+                type: array
+                title: Response Get Collections Api V2 Collections Get
+    post:
+      tags:
+      - Collections
+      summary: Create Collection
+      description: Tạo bộ sưu tập sách mới
+      operationId: create_collection_api_v2_collections_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v2/collections/{id}:
+    get:
+      tags:
+      - Collections
+      summary: Get Collection
+      description: Xem chi tiết bộ sưu tập (bao gồm các sách bên trong)
+      operationId: get_collection_api_v2_collections__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Collections
+      summary: Update Collection
+      description: Sửa thông tin bộ sưu tập (yêu cầu là chủ bộ sưu tập)
+      operationId: update_collection_api_v2_collections__id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Collections
+      summary: Delete Collection
+      description: Xóa bộ sưu tập (yêu cầu là chủ bộ sưu tập)
+      operationId: delete_collection_api_v2_collections__id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/borrows:
+    get:
+      tags:
+      - Borrow Records
+      summary: Get Borrows
+      description: Lấy danh sách lịch mượn tài khoản đang tham gia (đơn đi mượn hoặc
+        đơn người khác mượn sách của mình)
+      operationId: get_borrows_api_v2_borrows_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BorrowRecordResponse'
+                type: array
+                title: Response Get Borrows Api V2 Borrows Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - Borrow Records
+      summary: Create Borrow
+      description: Tạo đơn mượn (truyền book_id hoặc collection_id)
+      operationId: create_borrow_api_v2_borrows_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowRecordCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v2/borrows/{id}:
+    get:
+      tags:
+      - Borrow Records
+      summary: Get Borrow
+      description: Xem chi tiết một lịch mượn cụ thể
+      operationId: get_borrow_api_v2_borrows__id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/borrows/{id}/status:
+    patch:
+      tags:
+      - Borrow Records
+      summary: Update Borrow Status
+      description: Cập nhật trạng thái duyệt/từ chối hoặc trả sách (dành cho chủ sách/người
+        mượn)
+      operationId: update_borrow_status_api_v2_borrows__id__status_patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowRecordUpdateStatus'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Read Root
+      operationId: read_root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    BookCreate:
+      properties:
+        title:
+          type: string
+          title: Title
+        author:
+          type: string
+          title: Author
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        collection_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Collection Id
+      type: object
+      required:
+      - title
+      - author
+      title: BookCreate
+    BookResponse:
+      properties:
+        title:
+          type: string
+          title: Title
+        author:
+          type: string
+          title: Author
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        id:
+          type: integer
+          title: Id
+        owner_id:
+          type: integer
+          title: Owner Id
+        collection_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Collection Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - title
+      - author
+      - id
+      - owner_id
+      - collection_id
+      - created_at
+      title: BookResponse
+    BookUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        author:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Author
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        collection_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Collection Id
+      type: object
+      title: BookUpdate
+    BorrowRecordCreate:
+      properties:
+        book_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Book Id
+        collection_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Collection Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+      type: object
+      title: BorrowRecordCreate
+    BorrowRecordResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        book_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Book Id
+        collection_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Collection Id
+        borrower_id:
+          type: integer
+          title: Borrower Id
+        owner_id:
+          type: integer
+          title: Owner Id
+        status:
+          $ref: '#/components/schemas/BorrowStatus'
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - book_id
+      - collection_id
+      - borrower_id
+      - owner_id
+      - status
+      - additional_info
+      - created_at
+      title: BorrowRecordResponse
+    BorrowRecordUpdateStatus:
+      properties:
+        status:
+          $ref: '#/components/schemas/BorrowStatus'
+      type: object
+      required:
+      - status
+      title: BorrowRecordUpdateStatus
+    BorrowStatus:
+      type: string
+      enum:
+      - pending
+      - approved
+      - rejected
+      - returned
+      - expired
+      title: BorrowStatus
+    CollectionCreate:
+      properties:
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - title
+      title: CollectionCreate
+    CollectionDetailResponse:
+      properties:
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        id:
+          type: integer
+          title: Id
+        owner_id:
+          type: integer
+          title: Owner Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        books:
+          items:
+            $ref: '#/components/schemas/BookResponse'
+          type: array
+          title: Books
+          default: []
+      type: object
+      required:
+      - title
+      - id
+      - owner_id
+      - created_at
+      title: CollectionDetailResponse
+    CollectionResponse:
+      properties:
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        id:
+          type: integer
+          title: Id
+        owner_id:
+          type: integer
+          title: Owner Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - title
+      - id
+      - owner_id
+      - created_at
+      title: CollectionResponse
+    CollectionUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      title: CollectionUpdate
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LoginRequest:
+      properties:
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - username
+      - password
+      title: LoginRequest
+    RegisterRequest:
+      properties:
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+        name:
+          type: string
+          title: Name
+        email:
+          type: string
+          format: email
+          title: Email
+        phone:
+          type: string
+          title: Phone
+      type: object
+      required:
+      - username
+      - password
+      - name
+      - email
+      - phone
+      title: RegisterRequest
+    Token:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+      type: object
+      required:
+      - access_token
+      - token_type
+      title: Token
+    UserPublic:
+      properties:
+        id:
+          type: integer
+          title: Id
+        name:
+          type: string
+          title: Name
+        email:
+          type: string
+          format: email
+          title: Email
+        phone:
+          type: string
+          title: Phone
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - phone
+      title: UserPublic
+    UserResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        username:
+          type: string
+          title: Username
+        name:
+          type: string
+          title: Name
+        email:
+          type: string
+          format: email
+          title: Email
+        phone:
+          type: string
+          title: Phone
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - username
+      - name
+      - email
+      - phone
+      - created_at
+      title: UserResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /api/v1/auth/login
