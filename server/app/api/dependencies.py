@@ -8,8 +8,8 @@ from app.db.session import SessionLocal
 from app.models.user import User
 
 # Khai báo loại xác thực là OAuth2 bằng Bearer Token
-# Tham số tokenUrl báo cho Swagger UI biết URL nào dùng để LẤY token (chính là đường dẫn đăng nhập lát ta viết)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+# Tham số tokenUrl báo cho Swagger UI biết URL nào dùng để LẤY token (chính là đường dẫn đăng nhập)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 # Dependency số 1: Xin cấp Session kết nối Database
 def get_db():

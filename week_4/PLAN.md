@@ -111,5 +111,5 @@ API quản lý thư viện sách trực tuyến. Người dùng đăng nhập đ
 Hệ thống sử dụng cơ chế bảo mật theo tài nguyên. Có 2 mức phân quyền chính:
 - **Quyền Cơ bản (Requires Login)**: Chỉ cần có JWT hợp lệ được gửi lên là có thể thao tác (Ví dụ: Thêm sách, tạo bộ sưu tập, tìm kiếm danh sách sách, xem thông tin sinh viên, đặt lịch mượn). 
 - **Quyền Sở hữu (`isOwner`)**: Được áp dụng trên các endpoint quan trọng để chống truy cập trái phép. Nó áp dụng cho các hành động thay đổi/xóa tài nguyên (VD: Sửa/xóa sách, cập nhật thông tin bộ sưu tập, phê duyệt lịch mượn sách). Hệ thống sẽ kiểm tra xem `user_id` (được giải mã từ Token) có khớp với `owner_id` của đối tượng đang thao tác hay không. Nếu kiểm tra thất bại, server sẽ chặn request với mã lỗi `403 Forbidden`.
-*(Lưu ý: Logic cụ thể về Dependency hoặc Middleware của FastAPI cho cơ chế `isOwner` sẽ được thiết lập trực tiếp vào mã nguồn ở giai đoạn sau).*
+
 
