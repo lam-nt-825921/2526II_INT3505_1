@@ -7,7 +7,6 @@ app = FastAPI(title="API Consistency Violations Demo")
 
 users_db = [{"id": 1, "name": "Alice", "email": "alice@example.com", "created_at": "2023-10-27"}]
 orders_db = [{"id": 101, "item": "Laptop", "price": 1000, "is_active": True}]
-# Tạo đối tượng mới để thể hiện Nesting & Relationships
 reviews_db = [{"id": 1, "product_id": 101, "user_id": 1, "rating": 5, "content": "Tuyệt vời"}]
 
 # 1. Vi phạm quy ước đặt tên (Naming Inconsistency)
