@@ -1,0 +1,86 @@
+FORMAT: 1A
+HOST: http://localhost:8000
+
+# Khảo sát API Quản lý Thư viện (API Blueprint)
+
+Tài liệu này thể hiện API thiết kế dưới định dạng **API Blueprint (phong cách MSON - Markdown Syntax for Object Notation)**. Bạn sẽ nhận thấy sự thân thiện tuyệt đối với con người khi mọi block mô hình hay endpoint đều đọc trơn tru như một bản doc markdown thông thường.
+
+# Group Quản lý Sách (Books)
+Nhóm Endpoints thao tác liên quan tới sách trong kho.
+
+## Danh sách Sách Collection [/books{?status}]
+
+Hỗ trợ lấy danh sách sách hiện tại và thêm cuốn mới.
+
++ Parameters
+    + status: `available` (string, optional) - Truy vấn trạng thái sách. Chấp nhận `available` hoặc `borrowed`
+
+### Lấy toàn bộ sách trong hệ thống [GET]
++ Response 200 (application/json)
+    + Attributes (array[Book])
+
+### Thêm sách mới vào thư viện [POST]
++ Request (application/json)
+    + Attributes (BookInput)
+
++ Response 201 (application/json)
+    + Attributes (Book)
+
+## Sách Đơn lẻ (Book Detail) [/books/{id}]
+
++ Parameters
+    + id: 1 (number, required) - Khóa chính ID của sách
+
+### Lấy thông tin chi tiết một cuốn [GET]
++ Response 200 (application/json)
+    + Attributes (Book)
+
++ Response 404 (application/json)
+    + Body
+
+            {
+              "detail": "Không tìm thấy sách"
+            }
+
+# Group Quản lý Thành viên (Users)
+Quản trị độc giả đăng ký mượn sách.
+
+## Thành viên Collection [/users]
+
+### Xem danh sách toàn bộ người dùng [GET]
++ Response 200 (application/json)
+    + Attributes (array[User])
+
+### Tạo người dùng mới [POST]
++ Request (application/json)
+    + Attributes (UserInput)
+
++ Response 201 (application/json)
+    + Attributes (User)
+
+
+# Data Structures
+Đây là nơi cấu trúc các Data Models dùng chung toàn cục. Nguyên lý MSON cho phép khai báo thuộc tính và kế thừa mà không cần dấu ngoặc móc rườm rà.
+
+## Book (object)
++ id: 1 (number, required) - Không được để trống
++ title: `Sapiens` (string, required)
++ author: `Yuval Noah Harari` (string, required)
++ status: `available` (enum[string], required)
+    + Members
+        + available
+        + borrowed
+
+## BookInput (object)
++ title: `Nhà Giả Kim` (string, required)
++ author: `Paulo Coelho` (string, required)
++ status: `borrowed` (string, required)
+
+## User (object)
++ id: 101 (number, required)
++ name: `Alice` (string, required)
++ email: `alice@example.com` (string, required)
+
+## UserInput (object)
++ name: `Bob` (string, required)
++ email: `bob@example.com` (string, required)

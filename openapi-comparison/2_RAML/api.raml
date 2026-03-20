@@ -1,0 +1,119 @@
+#%RAML 1.0
+title: Khảo sát API Quản lý Thư viện (RAML)
+version: v1
+baseUri: http://localhost:8000
+mediaType: application/json
+
+description: >
+  Tài liệu này thể hiện API thiết kế dưới định dạng **RAML** 
+  (RESTful API Modeling Language). Đặc trưng nổi bật ở định dạng này là 
+  giảm lặp code (DRY) thông qua việc hệ thống mô hình cây endpoints rất trực quan và cung cấp `traits` cùng `types`.
+
+# --- ĐỊNH NGHĨA DATA MODELS (Tái cấu trúc giống components của OpenAPI) ---
+types:
+  Book:
+    type: object
+    properties:
+      id: 
+        type: integer
+        example: 1
+      title: 
+        type: string
+        example: "Sapiens: Lược Sử Loài Người"
+      author: 
+        type: string
+        example: "Yuval Noah Harari"
+      status:
+        type: string
+        enum: [ available, borrowed ]
+        example: "available"
+        
+  BookInput:
+    type: object
+    properties:
+      title: string
+      author: string
+      status:
+        type: string
+        enum: [ available, borrowed ]
+
+  User:
+    type: object
+    properties:
+      id: integer
+      name: string
+      email: string
+      
+  UserInput:
+    type: object
+    properties:
+      name: string
+      email: string
+
+# --- KẾ THỪA THUỘC TÍNH (Tính năng cực mạnh giúp tránh gõ đi gõ lại) ---
+traits:
+  statusFilter:
+    queryParameters:
+      status:
+        description: Tham số lọc lấy những sách có trạng thái tương ứng.
+        type: string
+        enum: [ available, borrowed ]
+        required: false
+
+# --- ĐỊNH NGHĨA ENDPOINTS (Tổ chức theo hệ thống cấu trúc cây Tree-based) ---
+/books:
+  description: Quản lý thông tin sách trong kho thư viện.
+  get:
+    description: Lấy danh sách toàn bộ sách trong hệ thống.
+    is: [ statusFilter ] # "Kế thừa" ngay lập tức tham số status đã định nghĩa ở Traits
+    responses:
+      200:
+        body:
+          type: Book[]
+  
+  post:
+    description: Thêm mới sách vào hệ thống API.
+    body:
+      type: BookInput
+    responses:
+      201:
+        body:
+          type: Book
+
+  /{id}:
+    uriParameters:
+      id:
+        description: Khóa chính (ID) của cuốn sách
+        type: integer
+    get:
+      description: Xem thông tin chi tiết của một cuốn sách bất kỳ
+      responses:
+        200:
+          body:
+             type: Book
+        404:
+          description: Không tìm thấy nội dung
+          body:
+            type: object
+            properties:
+              detail: string
+            example: |
+              { "detail": "Không tìm thấy sách" }
+
+/users:
+  description: Quản lý thông tin thành viên (độc giả mượn sách)
+  get:
+    description: Lấy danh sách toàn bộ thành viên
+    responses:
+      200:
+        body:
+          type: User[]
+          
+  post:
+    description: Thêm một độc giả thành viên mới
+    body:
+      type: UserInput
+    responses:
+      201:
+        body:
+          type: User

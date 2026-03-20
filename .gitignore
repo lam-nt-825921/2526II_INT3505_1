@@ -1,0 +1,19 @@
+# Môi trường và thư viện Node.js
+node_modules/
+npm-debug.log
+
+# Phân tán bộ đệm Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Môi trường ảo Python
+.env
+.venv
+venv/
+env/
+
+# IDE / Trình chỉnh sửa
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,171 @@
+openapi: 3.0.0
+info:
+  title: Khảo sát API Quản lý Thư viện (TypeSpec)
+  version: 0.0.0
+tags: []
+paths:
+  /books:
+    get:
+      operationId: Books_list
+      summary: Lấy danh sách hệ thống sách
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/BookStatus'
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+    post:
+      operationId: Books_create
+      summary: Tạo mới một cuốn sách
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+  /books/{id}:
+    get:
+      operationId: Books_read
+      summary: Gọixem chi tiết sách
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users:
+    get:
+      operationId: Users_list
+      summary: Lấy danh sách người dùng thư viện
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      operationId: Users_create
+      summary: Thêm hồ sơ người dùng mới
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+        - status
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Khóa chính của sách
+        title:
+          type: string
+        author:
+          type: string
+        status:
+          $ref: '#/components/schemas/BookStatus'
+    BookInput:
+      type: object
+      required:
+        - title
+        - author
+        - status
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        status:
+          $ref: '#/components/schemas/BookStatus'
+    BookStatus:
+      type: string
+      enum:
+        - available
+        - borrowed
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        email:
+          type: string
+    UserInput:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+servers:
+  - url: http://localhost:8000
+    description: Máy chủ cục bộ
+    variables: {}
