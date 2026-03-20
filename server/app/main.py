@@ -7,13 +7,30 @@ from app.api.exception_handlers import (
     validation_exception_handler, 
     global_exception_handler
 )
+from app.core.config import settings
 
 Base.metadata.create_all(bind=engine)
+
+servers = [
+    {
+        "url": "http://localhost:3000",
+        "description": "Development Server"
+    }
+]
+
+if settings.ENVIRONMENT == "prod":
+    servers = [
+        {
+            "url": settings.PROD_SERVER_URL,
+            "description": "Production Server"
+        }
+    ]
 
 app = fastapi.FastAPI(
     title="Library API",
     description="API quản lý thư viện sách trực tuyến, hỗ trợ Chủ sách và Người đọc theo chuẩn OpenAPI",
-    version="1.0.0"
+    version="1.0.0",
+    servers=servers
 )
 
 app.add_exception_handler(AppException, app_exception_handler)
