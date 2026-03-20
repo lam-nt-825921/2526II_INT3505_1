@@ -31,7 +31,7 @@ Do được tạo với mục đích demo nên API nhỏ và ít chức năng, h
 
 #### Demo
 Dưới đây là đường dẫn tới 4 demo:
-- [Demo OpenAPI](./openapi-demo/README.md)
-- [Demo API Blueprint](./api-blueprint-demo/README.md)
-- [Demo RAML](./raml-demo/README.md)
-- [Demo TypeSpec](./typespec-demo/README.md)
+- [Demo OpenAPI](./0_OpenAPI/README.md)
+- [Demo API Blueprint](./1_APIBlueprint/README.md)
+- [Demo RAML](./2_RAML/README.md)
+- [Demo TypeSpec](./3_TypeSpec/README.md)
