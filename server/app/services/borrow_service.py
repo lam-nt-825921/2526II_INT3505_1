@@ -5,6 +5,8 @@ from app.models.book import Book
 from app.models.collection import Collection
 from app.schemas.borrow_record import BorrowRecordCreate, BorrowRecordUpdateStatus
 from app.core.errors import ErrorCode, AppException
+from app.api.dependencies import PaginationParams
+from app.utils.pagination import paginate_query
 
 def create_borrow_v1(db: Session, borrow_in: BorrowRecordCreate, current_user_id: int):
     if not borrow_in.book_id and not borrow_in.collection_id:
@@ -33,10 +35,12 @@ def create_borrow_v1(db: Session, borrow_in: BorrowRecordCreate, current_user_id
     db.refresh(new_record)
     return new_record
 
-def get_user_borrows_v1(db: Session, current_user_id: int):
-    return db.query(BorrowRecord).filter(
+def get_user_borrows_v1(db: Session, current_user_id: int, pagination: PaginationParams):
+    query = db.query(BorrowRecord).filter(
         (BorrowRecord.borrower_id == current_user_id) | (BorrowRecord.owner_id == current_user_id)
-    ).all()
+    )
+    
+    return paginate_query(query, pagination)
 
 def get_borrow_by_id_v1(db: Session, borrow_id: int, current_user_id: int):
     record = db.query(BorrowRecord).filter(BorrowRecord.id == borrow_id).first()

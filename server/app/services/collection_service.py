@@ -3,9 +3,16 @@ from fastapi import status
 from app.models.collection import Collection
 from app.schemas.collection import CollectionCreate, CollectionUpdate
 from app.core.errors import ErrorCode, AppException
+from app.api.dependencies import PaginationParams, SearchParams
+from app.utils.pagination import paginate_query
 
-def get_all_collections_v1(db: Session):
-    return db.query(Collection).all()
+def get_all_collections_v1(db: Session, pagination: PaginationParams, search: SearchParams):
+    query = db.query(Collection)
+    
+    if search.q:
+        query = query.filter(Collection.name.ilike(f"%{search.q}%"))
+        
+    return paginate_query(query, pagination)
 
 def create_collection_v1(db: Session, coll_in: CollectionCreate, current_user_id: int):
     new_coll = Collection(**coll_in.model_dump(), owner_id=current_user_id)

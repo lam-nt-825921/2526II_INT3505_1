@@ -1,11 +1,24 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from fastapi import status
 from app.models.book import Book
 from app.schemas.book import BookCreate, BookUpdate
 from app.core.errors import ErrorCode, AppException
+from app.api.dependencies import PaginationParams, SearchParams
+from app.utils.pagination import paginate_query
 
-def get_all_books_v1(db: Session):
-    return db.query(Book).all()
+def get_all_books_v1(db: Session, pagination: PaginationParams, search: SearchParams):
+    query = db.query(Book)
+    
+    if search.q:
+        query = query.filter(
+            or_(
+                Book.title.ilike(f"%{search.q}%"),
+                Book.author.ilike(f"%{search.q}%")
+            )
+        )
+    
+    return paginate_query(query, pagination)
 
 def create_book_v1(db: Session, book_in: BookCreate, current_user_id: int):
     new_book = Book(**book_in.model_dump(), owner_id=current_user_id)

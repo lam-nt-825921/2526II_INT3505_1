@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Query
+from typing import Optional
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
@@ -48,3 +49,19 @@ def get_current_user(
         raise credentials_exception
         
     return user
+
+class PaginationParams:
+    def __init__(
+        self,
+        page: int = Query(1, ge=1, description="Trang hiện hành (mặc định là 1)"),
+        size: int = Query(20, ge=1, le=100, description="Kích thước trang (mặc định là 20)")
+    ):
+        self.page = page
+        self.size = size
+
+class SearchParams:
+    def __init__(
+        self,
+        q: Optional[str] = Query(None, description="Từ khóa tìm kiếm chung (tùy chọn)")
+    ):
+        self.q = q

@@ -1,17 +1,22 @@
-from fastapi import APIRouter, Depends, status
-from typing import List
+from fastapi import APIRouter, Depends, status, Query
+from typing import List, Optional
 from sqlalchemy.orm import Session
-from app.api.dependencies import get_db, get_current_user
+from app.api.dependencies import get_db, get_current_user, PaginationParams, SearchParams
 from app.schemas.book import BookCreate, BookUpdate, BookResponse
+from app.schemas.pagination import PageResponse
 from app.models.user import User
 from app.services import book_service
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
-@router.get("", response_model=List[BookResponse])
-def get_books(db: Session = Depends(get_db)):
+@router.get("", response_model=PageResponse[BookResponse])
+def get_books(
+    db: Session = Depends(get_db),
+    pagination: PaginationParams = Depends(),
+    search: SearchParams = Depends()
+):
     """Tìm kiếm và lấy danh sách sách"""
-    return book_service.get_all_books_v1(db)
+    return book_service.get_all_books_v1(db, pagination, search)
 
 @router.post("", response_model=BookResponse, status_code=status.HTTP_201_CREATED)
 def create_book(book: BookCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
