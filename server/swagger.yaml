@@ -280,31 +280,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/books/admin/force-delete/{id}:
-    delete:
-      tags:
-      - Books
-      summary: Admin Force Delete Book
-      description: Xóa sách bất kỳ không cần hỏi (Chỉ dành cho Admin)
-      operationId: admin_force_delete_book_api_v1_books_admin_force_delete__id__delete
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Id
-      responses:
-        '204':
-          description: Successful Response
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/collections:
     get:
       tags:
@@ -451,6 +426,31 @@ paths:
       summary: Delete Collection
       description: Xóa bộ sưu tập (yêu cầu là chủ bộ sưu tập)
       operationId: delete_collection_api_v1_collections__id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/books/admin/force-delete/{id}:
+    delete:
+      tags:
+      - Books
+      summary: Admin Force Delete Book
+      description: Xóa sách bất kỳ không cần hỏi (Chỉ dành cho Admin)
+      operationId: admin_force_delete_book_api_v1_books_admin_force_delete__id__delete
       security:
       - OAuth2PasswordBearer: []
       parameters:
@@ -770,31 +770,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v2/books/admin/force-delete/{id}:
-    delete:
-      tags:
-      - Books
-      summary: Admin Force Delete Book
-      description: Xóa sách bất kỳ không cần hỏi (Chỉ dành cho Admin)
-      operationId: admin_force_delete_book_api_v2_books_admin_force_delete__id__delete
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Id
-      responses:
-        '204':
-          description: Successful Response
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /api/v2/users/{id}:
     get:
       tags:
@@ -1049,6 +1024,31 @@ paths:
       summary: Delete Collection
       description: Xóa bộ sưu tập (yêu cầu là chủ bộ sưu tập)
       operationId: delete_collection_api_v2_collections__id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/books/admin/force-delete/{id}:
+    delete:
+      tags:
+      - Books
+      summary: Admin Force Delete Book
+      description: Xóa sách bất kỳ không cần hỏi (Chỉ dành cho Admin)
+      operationId: admin_force_delete_book_api_v2_books_admin_force_delete__id__delete
       security:
       - OAuth2PasswordBearer: []
       parameters:
