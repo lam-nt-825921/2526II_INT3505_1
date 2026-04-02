@@ -2,16 +2,16 @@ from fastapi import APIRouter, Depends
 from app.api.dependencies import get_token_payload
 
 # Đọc các thư viện của V1 (Kế thừa)
-from app.api.v1.public import (
+from app.api.v1.public_routes import (
     auth as auth_v1, 
     users as users_v1, 
     books as books_v1_public, 
     collections as collections_v1_public
 )
-from app.api.v1.private import router as private_v1_router
+from app.api.v1.private_routes import router as private_v1_router
 
 # Đọc các thư viện của V2 (Ghi đè)
-from app.api.v2.public import books as books_v2_public
+from app.api.v2.public_routes import books as books_v2_public
 
 router = APIRouter()
 

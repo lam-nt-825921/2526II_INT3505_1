@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.api.dependencies import get_token_payload
-from .public import router as public_router
-from .private import router as private_router
+from .public_routes import router as public_router
+from .private_routes import router as private_router
 
 router = APIRouter()
 
