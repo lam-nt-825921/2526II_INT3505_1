@@ -8,9 +8,17 @@ from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.user import User
 
+from fastapi.security import OAuth2PasswordBearer, SecurityScopes
+
 # Khai báo loại xác thực là OAuth2 bằng Bearer Token
-# Tham số tokenUrl báo cho Swagger UI biết URL nào dùng để LẤY token (chính là đường dẫn đăng nhập)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+# Tham số tokenUrl báo cho Swagger UI biết URL nào dùng để LẤY token
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/login",
+    scopes={
+        "admin": "Quyền quản trị viên hệ thống (full access)",
+        "member": "Quyền hội viên độc giả",
+    }
+)
 
 # Dependency số 1: Xin cấp Session kết nối Database
 def get_db():
@@ -20,34 +28,46 @@ def get_db():
     finally:
         db.close()
 
-# Dependency số 2: Lấy thông tin người dùng từ Token
+# Dependency số 2: Lấy thông tin người dùng từ Token và Check Scopes
 def get_current_user(
-    # Bắt FastAPI trích xuất chữ "Bearer <token>" từ Header ra, lấy cái <token> nhét vào đây
+    security_scopes: SecurityScopes,
     token: str = Depends(oauth2_scheme), 
-    # Bắt FastAPI mở kết nối DB luôn để lát tìm user
     db: Session = Depends(get_db)       
 ):
+    if security_scopes.scopes:
+        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+    else:
+        authenticate_value = "Bearer"
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Không thể xác thực danh tính",
-        headers={"WWW-Authenticate": "Bearer"},
+        headers={"WWW-Authenticate": authenticate_value},
     )
     
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        
         username: str = payload.get("sub")
+        
+        # Lấy file role (ví dụ: payload chứa "scopes": ["admin"]) hoặc custom role
+        token_scopes = payload.get("scopes", [])
         if username is None:
             raise credentials_exception
-            
     except JWTError:
         raise credentials_exception
         
     user = db.query(User).filter(User.username == username).first()
-    
     if user is None:
         raise credentials_exception
         
+    # Check if the user has the required scopes
+    for scope in security_scopes.scopes:
+        if scope not in token_scopes:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Tài khoản không có đủ quyền/scope để thực hiện hành động này",
+            )
+            
     return user
 
 class PaginationParams:

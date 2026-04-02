@@ -8,6 +8,7 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     phone: str
+    role: str = "member"
     created_at: datetime
 
     class Config:

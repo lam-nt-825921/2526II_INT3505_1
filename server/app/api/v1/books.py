@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, Security
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.api.dependencies import get_db, get_current_user, PaginationParams, SearchParams
@@ -37,4 +37,10 @@ def update_book(id: int, book: BookUpdate, db: Session = Depends(get_db), curren
 def delete_book(id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Xóa sách (yêu cầu quyền Chủ sách)"""
     book_service.delete_book_v1(db, id, current_user.id)
+    return None
+
+@router.delete("/admin/force-delete/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def admin_force_delete_book(id: int, db: Session = Depends(get_db), current_user: User = Security(get_current_user, scopes=["admin"])):
+    """Xóa sách bất kỳ không cần hỏi (Chỉ dành cho Admin)"""
+    book_service.admin_delete_book_v1(db, id)
     return None

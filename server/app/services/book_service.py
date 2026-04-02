@@ -47,3 +47,9 @@ def delete_book_v1(db: Session, book_id: int, current_user_id: int):
     if book.owner_id != current_user_id: raise AppException(status_code=status.HTTP_403_FORBIDDEN, error_code=ErrorCode.PERMISSION_DENIED)
     db.delete(book)
     db.commit()
+
+def admin_delete_book_v1(db: Session, book_id: int):
+    book = get_book_by_id_v1(db, book_id)
+    # Bỏ qua check owner_id vì dùng cho Admin
+    db.delete(book)
+    db.commit()

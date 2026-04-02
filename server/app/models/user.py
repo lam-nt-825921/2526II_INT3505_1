@@ -12,6 +12,7 @@ class User(Base):
     name = Column(String)
     email = Column(String, unique=True, index=True)
     phone = Column(String)
+    role = Column(String, default="member")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     books = relationship("Book", back_populates="owner")
