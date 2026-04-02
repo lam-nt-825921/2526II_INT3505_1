@@ -28,8 +28,8 @@ def login_user_v1(db: Session, request: OAuth2PasswordRequestForm):
     if not user or not verify_password(request.password, user.hashed_password):
         raise AppException(status_code=status.HTTP_401_UNAUTHORIZED, error_code=ErrorCode.INVALID_CREDENTIALS, headers={"WWW-Authenticate": "Bearer"})
     
-    access_token = create_access_token(data={"sub": user.username, "scopes": [user.role]})
-    refresh_token = create_refresh_token(data={"sub": user.username})
+    access_token = create_access_token(data={"sub": str(user.id), "role": user.role})
+    refresh_token = create_refresh_token(data={"sub": str(user.id), "role": user.role})
     return {
         "access_token": access_token, 
         "token_type": "bearer",
@@ -41,17 +41,16 @@ def refresh_token_v1(db: Session, token: str):
     from jose import jwt, JWTError
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username: str = payload.get("sub")
+        sub: str = payload.get("sub")
         token_type: str = payload.get("type", "")
-        if username is None or token_type != "refresh":
+        if sub is None or token_type != "refresh":
             raise AppException(status_code=status.HTTP_401_UNAUTHORIZED, error_code=ErrorCode.INVALID_CREDENTIALS, headers={"WWW-Authenticate": "Bearer"})
     except JWTError:
         raise AppException(status_code=status.HTTP_401_UNAUTHORIZED, error_code=ErrorCode.INVALID_CREDENTIALS, headers={"WWW-Authenticate": "Bearer"})
         
-    user = db.query(User).filter(User.username == username).first()
+    user = db.query(User).filter(User.id == int(sub)).first()
     if not user:
         raise AppException(status_code=status.HTTP_401_UNAUTHORIZED, error_code=ErrorCode.INVALID_CREDENTIALS)
         
-    access_token = create_access_token(data={"sub": user.username, "scopes": [user.role]})
-    # Optional: Rotate Refresh Token here if desired (not strictly required for basic impl)
+    access_token = create_access_token(data={"sub": str(user.id), "role": user.role})
     return {"access_token": access_token, "token_type": "bearer"}

@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, status, Query
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from app.api.dependencies import get_db, get_current_user, PaginationParams, SearchParams
+from app.api.dependencies import get_db, get_current_user_id, PaginationParams, SearchParams
 from app.schemas.collection import CollectionCreate, CollectionUpdate, CollectionResponse, CollectionDetailResponse
 from app.schemas.pagination import PageResponse
-from app.models.user import User
 from app.services import collection_service
 
 router = APIRouter(prefix="/collections", tags=["Collections"])
@@ -19,9 +18,9 @@ def get_collections(
     return collection_service.get_all_collections_v1(db, pagination, search)
 
 @router.post("", response_model=CollectionResponse, status_code=status.HTTP_201_CREATED)
-def create_collection(collection: CollectionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_collection(collection: CollectionCreate, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
     """Tạo bộ sưu tập sách mới"""
-    return collection_service.create_collection_v1(db, collection, current_user.id)
+    return collection_service.create_collection_v1(db, collection, current_user_id)
 
 @router.get("/{id}", response_model=CollectionDetailResponse)
 def get_collection(id: int, db: Session = Depends(get_db)):
@@ -29,12 +28,12 @@ def get_collection(id: int, db: Session = Depends(get_db)):
     return collection_service.get_collection_by_id_v1(db, id)
 
 @router.put("/{id}", response_model=CollectionResponse)
-def update_collection(id: int, collection: CollectionUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_collection(id: int, collection: CollectionUpdate, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
     """Sửa thông tin bộ sưu tập (yêu cầu là chủ bộ sưu tập)"""
-    return collection_service.update_collection_v1(db, id, collection, current_user.id)
+    return collection_service.update_collection_v1(db, id, collection, current_user_id)
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_collection(id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_collection(id: int, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
     """Xóa bộ sưu tập (yêu cầu là chủ bộ sưu tập)"""
-    collection_service.delete_collection_v1(db, id, current_user.id)
+    collection_service.delete_collection_v1(db, id, current_user_id)
     return None

@@ -288,8 +288,7 @@ paths:
       description: Xóa sách bất kỳ không cần hỏi (Chỉ dành cho Admin)
       operationId: admin_force_delete_book_api_v1_books_admin_force_delete__id__delete
       security:
-      - OAuth2PasswordBearer:
-        - admin
+      - OAuth2PasswordBearer: []
       parameters:
       - name: id
         in: path
@@ -779,8 +778,7 @@ paths:
       description: Xóa sách bất kỳ không cần hỏi (Chỉ dành cho Admin)
       operationId: admin_force_delete_book_api_v2_books_admin_force_delete__id__delete
       security:
-      - OAuth2PasswordBearer:
-        - admin
+      - OAuth2PasswordBearer: []
       parameters:
       - name: id
         in: path
@@ -1766,7 +1764,5 @@ components:
       type: oauth2
       flows:
         password:
-          scopes:
-            admin: Quyền quản trị viên hệ thống (full access)
-            member: Quyền hội viên độc giả
+          scopes: {}
           tokenUrl: /api/v1/auth/login
