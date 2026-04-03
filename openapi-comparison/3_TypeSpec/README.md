@@ -92,7 +92,7 @@ Python FastAPI Backend Mockup luôn là bảo chứng mạnh mẽ của dự án
 ```bash
 pip install fastapi uvicorn pydantic
 
-cd api_app
-uvicorn main:app --reload
+uvicorn api_app.main:app --reload
 ```
 Máy chủ lưu trữ sẽ chạy tại cổng [http://localhost:8000](http://localhost:8000/docs).
+*(Cấu trúc `api_app.main` dùng để giải quyết đặc thù relative import `from .models` sinh bởi tool).*

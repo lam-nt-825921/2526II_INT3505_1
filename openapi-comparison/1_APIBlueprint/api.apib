@@ -17,7 +17,7 @@ Hỗ trợ lấy danh sách sách hiện tại và thêm cuốn mới.
 
 ### Lấy toàn bộ sách trong hệ thống [GET]
 + Response 200 (application/json)
-    + Attributes (array[Book])
+    + Attributes (Books)
 
 ### Thêm sách mới vào thư viện [POST]
 + Request (application/json)
@@ -49,7 +49,7 @@ Quản trị độc giả đăng ký mượn sách.
 
 ### Xem danh sách toàn bộ người dùng [GET]
 + Response 200 (application/json)
-    + Attributes (array[User])
+    + Attributes (Users)
 
 ### Tạo người dùng mới [POST]
 + Request (application/json)
@@ -84,3 +84,7 @@ Quản trị độc giả đăng ký mượn sách.
 ## UserInput (object)
 + name: `Bob` (string, required)
 + email: `bob@example.com` (string, required)
+
+## Books (array[Book])
+
+## Users (array[User])

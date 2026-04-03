@@ -55,9 +55,11 @@ Copy toàn bộ text từ file `api.apib` và dán thẳng vào nền tảng edi
 Vì API Blueprint thiếu hệ sinh thái sinh code Python native ổn định trên Windows, quy trình tốt nhất là thông qua cầu nối OpenAPI:
 
 **Bước 1: Chuyển đổi API Blueprint sang OpenAPI v3**
-Bạn có thể sử dụng công cụ `apib2swagger` qua môi trường Node.js:
+Bạn có thể sử dụng công cụ `apib2swagger` qua môi trường Node.js. Cần nhớ thêm `-y` và cờ `--open-api-3` để output ra định dạng đúng nhé:
 ```bash
-npx apib2swagger -i api.apib -o openapi.yaml
+
+npx apib2swagger -i api.apib -o openapi.yaml -y --open-api-3
+
 ```
 
 **Bước 2: Sinh toàn bộ Project FastAPI Server**
@@ -84,7 +86,7 @@ pip install fastapi uvicorn pydantic
 
 **2. Kích hoạt Backend gốc:**
 ```bash
-cd api_app
-uvicorn main:app --reload
+uvicorn api_app.main:app --reload
 ```
 Server sẽ kích hoạt ở cổng **[http://localhost:8000](http://localhost:8000)**. Các API Endpoint như `GET /books` hay `POST /users` đã sẵn sàng ứng chiến!
+*(Lưu ý: Công cụ sinh code sẽ xuất file `main.py` với cấu trúc relative package `from .models`, do đó chúng ta phải đứng từ ngoài gọi vào bằng `api_app.main` chứ không `cd` vào trong).*

@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: API
+  version: 1.0.0
+  description: ''
+servers:
+  - url: http://localhost:8000
+paths:
+  /users:
+    get:
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: {}
+                required:
+                  - data
+              example:
+                data:
+                  - id: 1
+      summary: ''
+      operationId: ''
+      description: ''
+      tags: []
+      parameters: []
+components:
+  schemas:
+    UserList:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items: {}
+    User:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: number
+          example: 1
+tags: []

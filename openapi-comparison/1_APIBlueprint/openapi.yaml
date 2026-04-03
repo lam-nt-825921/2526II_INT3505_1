@@ -1,0 +1,273 @@
+openapi: 3.0.3
+info:
+  title: Khảo sát API Quản lý Thư viện (API Blueprint)
+  version: 1.0.0
+  description: >-
+    Tài liệu này thể hiện API thiết kế dưới định dạng **API Blueprint (phong
+    cách MSON - Markdown Syntax for Object Notation)**. Bạn sẽ nhận thấy sự thân
+    thiện tuyệt đối với con người khi mọi block mô hình hay endpoint đều đọc
+    trơn tru như một bản doc markdown thông thường.
+
+
+    # Group Quản lý Sách (Books)
+
+
+    Nhóm Endpoints thao tác liên quan tới sách trong kho.
+servers:
+  - url: http://localhost:8000
+paths:
+  /books:
+    get:
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    description: Không được để trống
+                  title:
+                    type: string
+                  author:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - available
+                      - borrowed
+                required:
+                  - id
+                  - title
+                  - author
+                  - status
+              example:
+                id: 1
+                title: Sapiens
+                author: Yuval Noah Harari
+                status: available
+        '404':
+          description: Not Found
+          headers: {}
+          content: {}
+      summary: Lấy thông tin chi tiết một cuốn
+      operationId: Lấy thông tin chi tiết một cuốn
+      description: ''
+      tags: []
+      parameters:
+        - &ref_0
+          name: status
+          in: query
+          description: Truy vấn trạng thái sách. Chấp nhận `available` hoặc `borrowed`
+          example: available
+          schema:
+            type: string
+    post:
+      responses:
+        '201':
+          description: Created
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    description: Không được để trống
+                  title:
+                    type: string
+                  author:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - available
+                      - borrowed
+                required:
+                  - id
+                  - title
+                  - author
+                  - status
+              example:
+                id: 1
+                title: Sapiens
+                author: Yuval Noah Harari
+                status: available
+      summary: Thêm sách mới vào thư viện
+      operationId: Thêm sách mới vào thư viện
+      description: ''
+      tags: []
+      parameters:
+        - *ref_0
+        - name: id
+          in: query
+          description: Khóa chính ID của sách
+          required: true
+          example: '1'
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            example:
+              title: Nhà Giả Kim
+              author: Paulo Coelho
+              status: borrowed
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                status:
+                  type: string
+              required:
+                - title
+                - author
+                - status
+  /users:
+    get:
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+              example:
+                - id: 101
+                  name: Alice
+                  email: alice@example.com
+      summary: Xem danh sách toàn bộ người dùng
+      operationId: Xem danh sách toàn bộ người dùng
+      description: ''
+      tags: []
+      parameters: []
+    post:
+      responses:
+        '201':
+          description: Created
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  name:
+                    type: string
+                  email:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - email
+              example:
+                id: 101
+                name: Alice
+                email: alice@example.com
+      summary: Tạo người dùng mới
+      operationId: Tạo người dùng mới
+      description: ''
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            example:
+              name: Bob
+              email: bob@example.com
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+              required:
+                - name
+                - email
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+        - status
+      properties:
+        id:
+          type: number
+          example: 1
+          description: Không được để trống
+        title:
+          type: string
+          example: Sapiens
+        author:
+          type: string
+          example: Yuval Noah Harari
+        status:
+          type: string
+          enum:
+            - available
+            - borrowed
+    BookInput:
+      type: object
+      required:
+        - title
+        - author
+        - status
+      properties:
+        title:
+          type: string
+          example: Nhà Giả Kim
+        author:
+          type: string
+          example: Paulo Coelho
+        status:
+          type: string
+          example: borrowed
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: number
+          example: 101
+        name:
+          type: string
+          example: Alice
+        email:
+          type: string
+          example: alice@example.com
+    UserInput:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          example: Bob
+        email:
+          type: string
+          example: bob@example.com
+    Books:
+      type: array
+      items: {}
+    Users:
+      type: array
+      items: {}
+tags: []

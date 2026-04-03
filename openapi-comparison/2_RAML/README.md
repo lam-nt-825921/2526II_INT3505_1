@@ -74,7 +74,7 @@ pip install fastapi uvicorn pydantic
 
 **2. Khởi chạy Server Backend tại folder code sinh:**
 ```bash
-cd api_app
-uvicorn main:app --reload
+uvicorn api_app.main:app --reload
 ```
 Máy chủ lưu trữ sẽ liên tục chạy ngầm ở cổng **[http://localhost:8000](http://localhost:8000)**. Lưu ý: Mọi giao diện tài liệu của bạn hãy xem dựa theo file tĩnh `index.html` của `raml2html` nhé!
+*(Cấu trúc `api_app.main` dùng để giải quyết đặc thù relative import `from .models` của công cụ gen).*
