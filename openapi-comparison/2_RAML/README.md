@@ -54,3 +54,26 @@ pip install fastapi uvicorn pydantic
 uvicorn main:app --reload
 ```
 Máy chủ lưu trữ sẽ liên tục chạy ngầm ở **[http://localhost:8000](http://localhost:8000)**. Lưu ý: Việc chạy server này thuần túy chỉ chứng minh rằng Code server tương tác chuẩn xác theo như tài liệu API đã thiết kế ở trên. Mọi giao diện tài liệu của bạn hãy xem dựa theo file `index.html` của `raml2html` nhé!
+
+---
+
+## 4. Tự động sinh Python Code (Code Generation)
+
+Giống như API Blueprint, hệ sinh thái code generator native cho RAML (như `ramlfications`) đa số đã lỗi thời hoặc chạy không thực sự ổn định với Python 3 hiện đại trên Windows. Tối ưu nhất để lấy code chất lượng cao là hướng tiếp cận 2 bước:
+
+**Bước 1: Chuyển đổi file RAML sang OpenAPI**
+Bạn có thể sử dụng các utility compiler từ Node.js như `oas-raml-converter`:
+```bash
+npx oas-raml-converter --from RAML --to OAS30 api.raml > openapi.yaml
+```
+
+**Bước 2: Sinh toàn bộ Project FastAPI Server**
+Khi đã thu được file `openapi.yaml`, thay vì chỉ sinh models tĩnh, ta sử dụng `fastapi-code-generator` của hệ sinh thái Python để sinh hẳn một Server API chạy thật sự:
+```bash
+# Cài đặt công cụ bằng pip
+pip install fastapi-code-generator
+
+# Tiến hành sinh cấu trúc project vào thư mục api_app
+fastapi-codegen --input openapi.yaml --output api_app
+```
+*(Quá trình này sẽ tự tạo folder `api_app` chứa sẵn `main.py` API Router và `models.py` Schema Data chuẩn hoá hoàn toàn để bạn có thể chạy test server).*

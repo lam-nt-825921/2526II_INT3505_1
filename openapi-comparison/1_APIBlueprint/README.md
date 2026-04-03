@@ -46,7 +46,7 @@ npx snowboard html api.apib -o index.html
 *(⚠️ **Điểm yếu hệ sinh thái trên Windows**: Vì parser của API Blueprint sử dụng thư viện lõi viết bằng C++, khi chạy `npx` từ Windows máy sẽ cố gắng yêu cầu cài đặt VS Studio C++ và Python (node-gyp rebuild). Điều này hay gây ra lỗi cài đặt crash liên tục. Hãy dùng Cách 2 bên dưới).*
 
 ### Cách 2: Preview qua nền tảng Cloud Apiary
-Copy toàn bộ text từ file `api.apib` và dán thẳng vào nền tảng editor chính thống [Apiary.io](https://app.apiary.io/) hoặc test bằng [Snowboard Online Renderer](https://snowboard.js.org/).
+Copy toàn bộ text từ file `api.apib` và dán thẳng vào nền tảng editor chính thống [Apiary.io](https://app.apiary.io/).
 
 ---
 
@@ -64,3 +64,26 @@ pip install fastapi uvicorn pydantic
 uvicorn main:app --reload
 ```
 Server sẽ kích hoạt ở cổng **[http://localhost:8000](http://localhost:8000)**. Các API Endpoint như `GET /books` hay `POST /users` đã sẵn sàng để đón nhận các luồng giả lập request từ giao diện Snowboard!
+
+---
+
+## 4. Tự động sinh code
+
+Vì API Blueprint thiếu hệ sinh thái sinh code Python native ổn định trên Windows, quy trình tốt nhất là thông qua cầu nối OpenAPI:
+
+**Bước 1: Chuyển đổi API Blueprint sang OpenAPI v3**
+Bạn có thể sử dụng công cụ `apib2swagger` qua môi trường Node.js:
+```bash
+npx apib2swagger -i api.apib -o openapi.yaml
+```
+
+**Bước 2: Sinh toàn bộ Project FastAPI Server**
+Sau khi đã có file `openapi.yaml`, chúng ta sẽ sử dụng công cụ `fastapi-code-generator` (được xây dựng dựa trên sức mạnh lõi của datamodel-codegen) để sinh ra hẳn một API có khả năng chạy ngay:
+```bash
+# Cài đặt công cụ bằng pip
+pip install fastapi-code-generator
+
+# Sinh ra project FastAPI vào thư mục api_app
+fastapi-codegen --input openapi.yaml --output api_app
+```
+*(Lệnh này sẽ tự động khởi tạo thư mục `api_app` đính kèm file `main.py` chứa toàn bộ Router và `models.py` chứa Data Schema. Hãy chạy file main đó để có API Server thực thụ!)*

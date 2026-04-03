@@ -55,3 +55,42 @@ pip install fastapi uvicorn pydantic
 uvicorn main:app --reload
 ```
 Máy chủ lưu trữ sẽ chạy tại cổng [http://localhost:8000](http://localhost:8000/docs).
+
+---
+
+## 4. Tự động sinh Python Code (Code Generation)
+
+Vì TypeSpec được thiết kế theo tư duy hiện đại, tính mở rộng là vô tận. Nó sở hữu hệ thống các **Emitter** (Bộ xuất code) riêng biệt do Microsoft hoặc cộng đồng tạo ra, cho phép gen Python Code Client Native cực kỳ sạch.
+
+**Bước 1: Cài đặt Plugin Python Emitter**
+Tải plugin dành riêng cho Python vào nội hàm dự án thông qua Node.js:
+```bash
+npm install @typespec/http-client-python --save-dev
+```
+
+**Bước 2: Cập nhật cấu hình `tspconfig.yaml`**
+Mở file `tspconfig.yaml` ra và thêm đuôi bộ build cho Python vào khối `emit` để trình compiler biết mục đích của chúng ta:
+```yaml
+emit:
+  - "@typespec/openapi3"
+  - "@typespec/http-client-python"
+```
+
+**Bước 3: Thu hoạch Code**
+Chạy quy trình Build dự án lần nữa:
+```bash
+npx tsp compile main.tsp
+```
+Trình biên dịch sẽ tự động bắt đầu quá trình và sinh ra một Client SDK chuẩn Python trong thư mục hệ thống con `tsp-output`.
+
+Bộ code này cực kỳ chuyên nghiệp và cũng là chuẩn giao tiếp mà các dev nội bộ Azure SDK đang sử dụng!. Dĩ nhiên, nếu dự định của bạn là sinh nhánh **Server** (FastAPI) thay vì nhánh **Client**, bạn không cần tải plugin `http-client-python`. 
+
+Hãy linh hoạt lấy đúng file trung gian OpenAPI `openapi.yaml` (sinh ra ở thư mục `tsp-output`) và chạy phối hợp với công cụ `fastapi-code-generator` của hệ sinh thái Python:
+```bash
+# Cài đặt bằng pip
+pip install fastapi-code-generator
+
+# Chạy lệnh xuất file lấy source là file trong thẻ output:
+fastapi-codegen --input tsp-output/openapi.yaml --output api_app
+```
+*(Sau lệnh này bạn sẽ thu được thẳng thư mục `api_app` có sẵn API `main.py` chạy uvicorn ngay lập tức!)*
