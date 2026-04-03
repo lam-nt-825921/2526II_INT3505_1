@@ -50,24 +50,7 @@ Copy toàn bộ text từ file `api.apib` và dán thẳng vào nền tảng edi
 
 ---
 
-## 3. Khởi chạy Server Backend Minh họa (Tùy chọn)
-
-Nếu bạn muốn chạy song song phần server "người thật, việc thật" được gắn đằng sau tài liệu (mã nguồn được viết bằng FastAPI trong file `main.py`), các bước vẫn giữ khuôn truyền thống:
-
-**1. Cài đặt môi trường Backend:**
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-**2. Kích hoạt Backend:**
-```bash
-uvicorn main:app --reload
-```
-Server sẽ kích hoạt ở cổng **[http://localhost:8000](http://localhost:8000)**. Các API Endpoint như `GET /books` hay `POST /users` đã sẵn sàng để đón nhận các luồng giả lập request từ giao diện Snowboard!
-
----
-
-## 4. Tự động sinh code
+## 3. Tự động sinh Python Code (Code Generation)
 
 Vì API Blueprint thiếu hệ sinh thái sinh code Python native ổn định trên Windows, quy trình tốt nhất là thông qua cầu nối OpenAPI:
 
@@ -87,3 +70,21 @@ pip install fastapi-code-generator
 fastapi-codegen --input openapi.yaml --output api_app
 ```
 *(Lệnh này sẽ tự động khởi tạo thư mục `api_app` đính kèm file `main.py` chứa toàn bộ Router và `models.py` chứa Data Schema. Hãy chạy file main đó để có API Server thực thụ!)*
+
+---
+
+## 4. Khởi chạy Server Backend mới sinh (Tùy chọn)
+
+Sau khi công cụ Code Generator tự động sinh ra module API, bạn có thể chạy thử mã nguồn (người thật, việc thật) để chứng minh tính chuẩn xác so với document của Blueprint.
+
+**1. Cài đặt framework chạy Server:**
+```bash
+pip install fastapi uvicorn pydantic
+```
+
+**2. Kích hoạt Backend gốc:**
+```bash
+cd api_app
+uvicorn main:app --reload
+```
+Server sẽ kích hoạt ở cổng **[http://localhost:8000](http://localhost:8000)**. Các API Endpoint như `GET /books` hay `POST /users` đã sẵn sàng ứng chiến!

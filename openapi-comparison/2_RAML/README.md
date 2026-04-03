@@ -40,24 +40,7 @@ Có thể xem file [index.html](./index.html) đã được render sẵn.
 
 ---
 
-## 3. Khởi chạy Server Backend Minh họa (Tùy chọn)
-
-Nếu bạn muốn chạy thử phần mock server xử lý dữ liệu backend đang đứng đằng sau tài liệu (mã nguồn được viết bằng FastAPI trong file `main.py`):
-
-**1. Cài đặt:**
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-**2. Khởi chạy Server Backend:**
-```bash
-uvicorn main:app --reload
-```
-Máy chủ lưu trữ sẽ liên tục chạy ngầm ở **[http://localhost:8000](http://localhost:8000)**. Lưu ý: Việc chạy server này thuần túy chỉ chứng minh rằng Code server tương tác chuẩn xác theo như tài liệu API đã thiết kế ở trên. Mọi giao diện tài liệu của bạn hãy xem dựa theo file `index.html` của `raml2html` nhé!
-
----
-
-## 4. Tự động sinh Python Code (Code Generation)
+## 3. Tự động sinh Python Code (Code Generation)
 
 Giống như API Blueprint, hệ sinh thái code generator native cho RAML (như `ramlfications`) đa số đã lỗi thời hoặc chạy không thực sự ổn định với Python 3 hiện đại trên Windows. Tối ưu nhất để lấy code chất lượng cao là hướng tiếp cận 2 bước:
 
@@ -77,3 +60,21 @@ pip install fastapi-code-generator
 fastapi-codegen --input openapi.yaml --output api_app
 ```
 *(Quá trình này sẽ tự tạo folder `api_app` chứa sẵn `main.py` API Router và `models.py` Schema Data chuẩn hoá hoàn toàn để bạn có thể chạy test server).*
+
+---
+
+## 4. Khởi chạy Server Backend mới sinh (Tùy chọn)
+
+Sau khi bộ Code Generator hoàn tất tạo cấu trúc thư mục, bạn có thể chạy thử "kết quả" ngay lập tức để chứng minh nó mapping chính xác với tài liệu RAML đã định ra:
+
+**1. Cài đặt framework:**
+```bash
+pip install fastapi uvicorn pydantic
+```
+
+**2. Khởi chạy Server Backend tại folder code sinh:**
+```bash
+cd api_app
+uvicorn main:app --reload
+```
+Máy chủ lưu trữ sẽ liên tục chạy ngầm ở cổng **[http://localhost:8000](http://localhost:8000)**. Lưu ý: Mọi giao diện tài liệu của bạn hãy xem dựa theo file tĩnh `index.html` của `raml2html` nhé!

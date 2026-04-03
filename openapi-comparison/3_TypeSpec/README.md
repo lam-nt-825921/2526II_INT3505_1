@@ -45,20 +45,7 @@ Giờ đây bạn có thể thoải mái quăng file OpenAPI yaml đó vào tron
 
 ---
 
-## 3. Khởi chạy Backend Demo Minh họa (Tùy chọn)
-
-Vẫn giống như mọi bài Demo khác, Python FastAPI Backend Mockup luôn có mặt tại đây trong luồng `main.py` để làm vật đối chứng dữ liệu:
-
-**Cài đặt & Khởi chạy:**
-```bash
-pip install fastapi uvicorn pydantic
-uvicorn main:app --reload
-```
-Máy chủ lưu trữ sẽ chạy tại cổng [http://localhost:8000](http://localhost:8000/docs).
-
----
-
-## 4. Tự động sinh Python Code (Code Generation)
+## 3. Tự động sinh Python Code (Code Generation)
 
 Vì TypeSpec được thiết kế theo tư duy hiện đại, tính mở rộng là vô tận. Nó sở hữu hệ thống các **Emitter** (Bộ xuất code) riêng biệt do Microsoft hoặc cộng đồng tạo ra, cho phép gen Python Code Client Native cực kỳ sạch.
 
@@ -94,3 +81,18 @@ pip install fastapi-code-generator
 fastapi-codegen --input tsp-output/openapi.yaml --output api_app
 ```
 *(Sau lệnh này bạn sẽ thu được thẳng thư mục `api_app` có sẵn API `main.py` chạy uvicorn ngay lập tức!)*
+
+---
+
+## 4. Khởi chạy Server Backend mới sinh (Tùy chọn)
+
+Python FastAPI Backend Mockup luôn là bảo chứng mạnh mẽ của dự án! Hãy xem code vừa được TypeSpec/OpenAPI Generate ra từ API Schema chạy mượt mà thế nào:
+
+**Cài đặt framework & Khởi chạy:**
+```bash
+pip install fastapi uvicorn pydantic
+
+cd api_app
+uvicorn main:app --reload
+```
+Máy chủ lưu trữ sẽ chạy tại cổng [http://localhost:8000](http://localhost:8000/docs).
