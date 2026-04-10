@@ -29,7 +29,7 @@ Hỗ trợ lấy danh sách sách hiện tại và thêm cuốn mới.
 ## Sách Đơn lẻ (Book Detail) [/books/{id}]
 
 + Parameters
-    + id: 1 (number, required) - Khóa chính ID của sách
+    + id: 1 (string, required) - Khóa chính ID của sách
 
 ### Lấy thông tin chi tiết một cuốn [GET]
 + Response 200 (application/json)
@@ -63,7 +63,7 @@ Quản trị độc giả đăng ký mượn sách.
 Đây là nơi cấu trúc các Data Models dùng chung toàn cục. Nguyên lý MSON cho phép khai báo thuộc tính và kế thừa mà không cần dấu ngoặc móc rườm rà.
 
 ## Book (object)
-+ id: 1 (number, required) - Không được để trống
++ id: 1 (string, required) - Không được để trống
 + title: `Sapiens` (string, required)
 + author: `Yuval Noah Harari` (string, required)
 + status: `available` (enum[string], required)
@@ -77,7 +77,7 @@ Quản trị độc giả đăng ký mượn sách.
 + status: `borrowed` (string, required)
 
 ## User (object)
-+ id: 101 (number, required)
++ id: 101 (string, required)
 + name: `Alice` (string, required)
 + email: `alice@example.com` (string, required)
 

@@ -28,7 +28,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
+                    type: string
                     description: Không được để trống
                   title:
                     type: string
@@ -45,7 +45,7 @@ paths:
                   - author
                   - status
               example:
-                id: 1
+                id: '1'
                 title: Sapiens
                 author: Yuval Noah Harari
                 status: available
@@ -76,7 +76,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
+                    type: string
                     description: Không được để trống
                   title:
                     type: string
@@ -93,7 +93,7 @@ paths:
                   - author
                   - status
               example:
-                id: 1
+                id: '1'
                 title: Sapiens
                 author: Yuval Noah Harari
                 status: available
@@ -109,7 +109,7 @@ paths:
           required: true
           example: '1'
           schema:
-            type: number
+            type: string
       requestBody:
         content:
           application/json:
@@ -142,7 +142,7 @@ paths:
                 type: array
                 items: {}
               example:
-                - id: 101
+                - id: '101'
                   name: Alice
                   email: alice@example.com
       summary: Xem danh sách toàn bộ người dùng
@@ -161,7 +161,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
+                    type: string
                   name:
                     type: string
                   email:
@@ -171,7 +171,7 @@ paths:
                   - name
                   - email
               example:
-                id: 101
+                id: '101'
                 name: Alice
                 email: alice@example.com
       summary: Tạo người dùng mới
@@ -206,8 +206,8 @@ components:
         - status
       properties:
         id:
-          type: number
-          example: 1
+          type: string
+          example: '1'
           description: Không được để trống
         title:
           type: string
@@ -244,8 +244,8 @@ components:
         - email
       properties:
         id:
-          type: number
-          example: 101
+          type: string
+          example: '101'
         name:
           type: string
           example: Alice
