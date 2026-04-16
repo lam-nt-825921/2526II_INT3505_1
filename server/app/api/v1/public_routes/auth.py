@@ -22,7 +22,7 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
     # Set the refresh token as an HttpOnly cookie
     response.set_cookie(
         key="refresh_token", 
-        value=token_data["refresh_token"], 
+        value=token_data.pop("refresh_token"), 
         httponly=True, 
         max_age=7 * 24 * 60 * 60, # 7 days
         samesite="lax", # secure=True should be used in production with HTTPS
