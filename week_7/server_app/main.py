@@ -6,9 +6,12 @@ from __future__ import annotations
 
 from typing import List, Optional, Union
 
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, Depends, HTTPException, status
+from pymongo.database import Database
 
 from .models import Product, ProductCreate
+from .database import get_db
+from . import product_repo
 
 app = FastAPI(
     title='Swagger Codegen Demo API',
@@ -19,53 +22,71 @@ app = FastAPI(
     ],
 )
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get('/products', response_model=List[Product], tags=['Products'])
 def get_products(
     name: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
+    db: Database = Depends(get_db)
 ) -> List[Product]:
     """
     Lấy danh sách sản phẩm
     """
-    pass
+    return product_repo.get_products(db, name=name, min_price=min_price, max_price=max_price)
 
 
 @app.post(
     '/products',
-    response_model=None,
-    responses={'201': {'model': Product}},
+    response_model=Product,
+    status_code=status.HTTP_201_CREATED,
     tags=['Products'],
 )
-def create_product(body: ProductCreate) -> Optional[Product]:
+def create_product(body: ProductCreate, db: Database = Depends(get_db)) -> Product:
     """
     Tạo sản phẩm mới
     """
-    pass
+    return product_repo.create_product(db, body)
 
 
 @app.get('/products/{productId}', response_model=Product, tags=['Products'])
-def get_product_by_id(product_id: int = Path(..., alias='productId')) -> Product:
+def get_product_by_id(product_id: int = Path(..., alias='productId'), db: Database = Depends(get_db)) -> Product:
     """
     Lấy chi tiết một sản phẩm theo ID
     """
-    pass
+    db_product = product_repo.get_product_by_id(db, product_id)
+    if not db_product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy sản phẩm")
+    return db_product
 
 
 @app.put('/products/{productId}', response_model=Product, tags=['Products'])
 def update_product(
-    product_id: int = Path(..., alias='productId'), body: ProductCreate = ...
+    product_id: int = Path(..., alias='productId'), body: ProductCreate = ..., db: Database = Depends(get_db)
 ) -> Product:
     """
     Cập nhật thông tin toàn bộ một sản phẩm
     """
-    pass
+    db_product = product_repo.update_product(db, product_id, body)
+    if not db_product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy sản phẩm")
+    return db_product
 
 
 @app.delete('/products/{productId}', response_model=None, tags=['Products'])
-def delete_product(product_id: int = Path(..., alias='productId')) -> None:
+def delete_product(product_id: int = Path(..., alias='productId'), db: Database = Depends(get_db)) -> None:
     """
     Xóa một sản phẩm
     """
-    pass
+    success = product_repo.delete_product(db, product_id)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy sản phẩm")
