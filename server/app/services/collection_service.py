@@ -10,7 +10,7 @@ def get_all_collections_v1(db: Session, pagination: PaginationParams, search: Se
     query = db.query(Collection)
     
     if search.q:
-        query = query.filter(Collection.name.ilike(f"%{search.q}%"))
+        query = query.filter(Collection.title.ilike(f"%{search.q}%"))
         
     return paginate_query(query, pagination)
 
