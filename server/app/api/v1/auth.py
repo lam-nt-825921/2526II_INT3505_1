@@ -16,7 +16,7 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    """Đăng nhập hệ thống bằng Form Data (Trả Access Token qua JSON, Refresh qua Cookie)"""
+    """Đăng nhập hệ thống bằng Form Data"""
     token_data = auth_service.login_user_v1(db, form_data)
     
     # Set the refresh token as an HttpOnly cookie
@@ -25,13 +25,13 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
         value=token_data.pop("refresh_token"), 
         httponly=True, 
         max_age=7 * 24 * 60 * 60, # 7 days
-        samesite="lax", # secure=True should be used in production with HTTPS
+        samesite="lax",
     )
     return token_data
 
 @router.post("/refresh", response_model=Token)
 def refresh(request: Request, db: Session = Depends(get_db)):
-    """Sử dụng Refresh Token chạy ngầm trong Cookie để lấy Access Token mới"""
+    """Sử dụng Refresh Token trong Cookie để lấy Access Token mới"""
     token = request.cookies.get("refresh_token")
     if not token:
         raise AppException(status_code=status.HTTP_401_UNAUTHORIZED, error_code=ErrorCode.INVALID_CREDENTIALS)

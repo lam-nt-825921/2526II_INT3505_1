@@ -5,7 +5,8 @@ from app.core.errors import AppException
 from app.api.exception_handlers import (
     app_exception_handler, 
     validation_exception_handler, 
-    global_exception_handler
+    global_exception_handler,
+    http_exception_handler
 )
 from app.core.config import settings
 
@@ -34,6 +35,7 @@ app = fastapi.FastAPI(
 )
 
 app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(fastapi.exceptions.HTTPException, http_exception_handler)
 app.add_exception_handler(fastapi.exceptions.RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 

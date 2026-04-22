@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends
-from app.api.dependencies import get_token_payload
-from .public_routes import router as public_router
-from .private_routes import router as private_router
+from fastapi import APIRouter
+from .auth import router as auth_router
+from .books import router as books_router
+from .collections import router as collections_router
+from .users import router as users_router
+from .borrows import router as borrows_router
 
 router = APIRouter()
 
-# 1. Public Routes (No authentication required globally)
-router.include_router(public_router)
-
-# 2. Private Routes (Authentication đã được cấu hình cứng ngầm bên trong private_router)
-router.include_router(private_router)
+router.include_router(auth_router)
+router.include_router(books_router)
+router.include_router(collections_router)
+router.include_router(users_router)
+router.include_router(borrows_router)

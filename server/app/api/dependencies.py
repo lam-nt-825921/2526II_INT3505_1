@@ -23,19 +23,16 @@ def get_db():
 
 # Dependency số 2: Xác thực Token 
 def get_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Không thể xác thực danh tính",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
-            raise credentials_exception
+            print("DEBUG: Token payload has no 'sub'")
+            raise HTTPException(status_code=401, detail="Token không hợp lệ")
         return payload
-    except JWTError:
-        raise credentials_exception
+    except JWTError as e:
+        print(f"DEBUG: JWT Decode Error: {e}")
+        raise HTTPException(status_code=401, detail=f"Xác thực thất bại: {str(e)}")
 
 # Dependency số 3: Kiểm tra quyền
 class RoleChecker:

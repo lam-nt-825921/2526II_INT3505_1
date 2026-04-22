@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.db.session import Base
@@ -10,7 +10,8 @@ class Book(Base):
     title = Column(String, index=True)
     author = Column(String)
     description = Column(Text, nullable=True)
-    quantity = Column(Integer, nullable=True)
+    price = Column(Float, default=0.0)
+    stock = Column(Integer, default=0)
     owner_id = Column(Integer, ForeignKey("users.id"))
     collection_id = Column(Integer, ForeignKey("collections.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
