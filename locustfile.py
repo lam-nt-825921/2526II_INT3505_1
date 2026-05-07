@@ -28,7 +28,7 @@ class LibraryUser(HttpUser):
     def view_book_detail(self):
         """Xem chi tiết sách"""
         if self.token:
-            book_id = 1 # Database hiện tại chỉ có 1 cuốn sách (ID: 1) từ seed_test.py
+            book_id = 1 
             self.client.get(f"/api/v1/books/{book_id}", headers=self.headers, name="/api/v1/books/[id]")
 
     @task(2)
