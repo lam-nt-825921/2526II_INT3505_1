@@ -44,6 +44,12 @@ class WithdrawalRequestV1(BaseModel):
     amount: str  # Breaking change in V2 will be float
     description: Optional[str] = "Withdrawal"
 
+# V2 Withdrawal Request - amount is Float
+class WithdrawalRequestV2(BaseModel):
+    account_number: str
+    amount: float
+    description: Optional[str] = "Withdrawal"
+
 class LoginRequest(BaseModel):
     username: str
     password: str

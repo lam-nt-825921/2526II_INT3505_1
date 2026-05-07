@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from ..models.payment import User, Account, Transaction
-from ..schemas.payment import UserCreate, WithdrawalRequestV1
+from ..schemas.payment import UserCreate, WithdrawalRequestV1, WithdrawalRequestV2
 from ..core.security import get_password_hash, verify_password
 from fastapi import HTTPException, status
 import uuid
@@ -19,7 +19,7 @@ def create_user(db: Session, user_in: UserCreate):
     # Auto create an account for new user
     db_account = Account(
         account_number=str(uuid.uuid4().hex[:10]).upper(),
-        balance=1000.0, # Starting balance for demo
+        balance=1000.0, # Float in DB
         user_id=db_user.id
     )
     db.add(db_account)
@@ -42,29 +42,37 @@ def get_account_transactions(db: Session, account_id: int):
     return db.query(Transaction).filter(Transaction.account_id == account_id).all()
 
 def withdraw_v1(db: Session, user_id: int, request: WithdrawalRequestV1):
+    # For V1, we convert string to float
+    try:
+        amount_float = float(request.amount)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid amount format. Must be a numeric string.")
+    
+    return _process_withdrawal(db, user_id, request.account_number, amount_float, request.description)
+
+def withdraw_v2(db: Session, user_id: int, request: WithdrawalRequestV2):
+    # For V2, amount is already float
+    return _process_withdrawal(db, user_id, request.account_number, request.amount, request.description)
+
+def _process_withdrawal(db: Session, user_id: int, account_number: str, amount: float, description: str):
     account = db.query(Account).filter(
-        Account.account_number == request.account_number,
+        Account.account_number == account_number,
         Account.user_id == user_id
     ).first()
     
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
-    
-    try:
-        amount_float = float(request.amount)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid amount format. Must be a numeric string.")
         
-    if account.balance < amount_float:
+    if account.balance < amount:
         raise HTTPException(status_code=400, detail="Insufficient balance")
     
-    account.balance -= amount_float
+    account.balance -= amount
     
     db_transaction = Transaction(
         account_id=account.id,
         transaction_type="withdrawal",
-        amount=amount_float,
-        description=request.description
+        amount=amount,
+        description=description
     )
     db.add(db_transaction)
     db.commit()
