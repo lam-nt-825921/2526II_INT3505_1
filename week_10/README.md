@@ -1,328 +1,209 @@
-# Week 10 Live Demo Guide: Observability API
+# Tuần 10: Demo Service Operation, Security & Monitoring
 
-Huong dan nay dung de thuc hien demo truc tiep tren lop cho API Python trong thu muc `week_10`. Production URL se duoc cap nhat sau khi deploy len Render hoac nen tang tuong duong.
+API demo dùng Python/FastAPI để trình bày deploy production, logging, metrics, rate limiting, circuit breaker, audit logs và cấu hình bằng environment variables.
 
-## 1. Muc tieu khi demo
-
-Can show truc tiep cac y sau:
-
-- API Python da deploy len production va co public HTTPS URL.
-- Co the mo Swagger UI tren trinh duyet va goi endpoint that.
-- Logs hien thi request, loi va audit event.
-- Metrics Prometheus hien thi tren endpoint `/metrics`.
-- Rate limiting chan request khi goi qua nhieu.
-- Circuit breaker tra ve loi nhanh khi external dependency bi fail lien tiep.
-- Cau hinh production khong hard-code secret, dung environment variables.
-
-## 2. Cac cua so can mo truoc khi demo
-
-Nen chuan bi san cac tab/cua so sau:
-
-1. VS Code hoac editor tai thu muc `week_10`.
-2. Terminal local da activate virtual environment.
-3. Trinh duyet mo Swagger UI local: `http://127.0.0.1:8000/docs`.
-4. Trinh duyet mo Swagger UI production: `https://<production-url>/docs`.
-5. Dashboard deploy, du kien Render Web Service.
-6. Tab Logs trong dashboard deploy.
-7. Tab Environment trong dashboard deploy.
-8. Endpoint metrics production: `https://<production-url>/metrics`.
-
-Gia tri can cap nhat sau khi deploy:
+Production URL:
 
 ```text
-Production URL: TODO
-Deploy platform: TODO
-Service name: TODO
+https://week-10-observability-api.onrender.com
 ```
 
-## 3. Chuan bi local
+Swagger UI:
 
-Chay trong PowerShell:
+```text
+https://week-10-observability-api.onrender.com/docs
+```
+
+## Script hỗ trợ demo
+
+Chạy từ thư mục `week_10`:
 
 ```powershell
-cd week_10
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-Copy-Item .env.example .env
+.\scripts\demo-api.ps1 -Scenario all
 ```
 
-File `.env` chi dung local va da duoc ignore boi `.gitignore`.
-
-Chay API local:
+Script mặc định gọi production URL. Nếu muốn gọi local:
 
 ```powershell
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+.\scripts\demo-api.ps1 -BaseUrl http://127.0.0.1:8000 -Scenario all
 ```
 
-Khi demo, giu terminal nay mo de show request logs local.
-
-## 4. Luong demo de xuat
-
-### Buoc 1: Gioi thieu code API
-
-Mo nhanh cac file chinh:
-
-- `app/main.py`: noi khoi tao FastAPI, middleware, router, metrics.
-- `app/logging_config.py`: cau hinh JSON logging.
-- `app/rate_limit.py`: cau hinh rate limit.
-- `app/circuit_breaker.py`: cau hinh circuit breaker.
-- `app/routes/items.py`: endpoint tao item va audit log.
-- `app/routes/external.py`: endpoint gia lap external dependency.
-- `.env.example`: cac bien moi truong mau.
-- `render.yaml`: cau hinh deploy.
-- `tests/`: test health, items, metrics, rate limit va circuit breaker.
-
-Noi ngan gon:
+Các scenario có sẵn:
 
 ```text
-API duoc viet bang Python/FastAPI. Demo tap trung vao operation: logging, metrics, rate limit, circuit breaker va deploy production.
+health      Kiểm tra /health và /ready
+items       Tạo item, list item, đồng thời tạo audit log
+metrics     Gọi API rồi đọc /metrics
+rate-limit  Gửi nhiều POST request để tạo lỗi 429
+external    Gọi external dependency để demo circuit breaker
+security    Kiểm tra security headers
+all         Chạy các phần an toàn, không tự spam rate-limit
 ```
 
-### Buoc 2: Show API local
+## Các phần cần demo
 
-Mo:
+### 1. Production API
+
+Mở trên trình duyệt:
 
 ```text
-http://127.0.0.1:8000/docs
+https://week-10-observability-api.onrender.com/health
+https://week-10-observability-api.onrender.com/docs
 ```
 
-Thu cac endpoint:
-
-```text
-GET /health
-GET /ready
-GET /api/v1/items
-POST /api/v1/items
-```
-
-Trong khi goi endpoint, quay lai terminal local de show log dang duoc ghi truc tiep.
-
-### Buoc 3: Show API production
-
-Mo:
-
-```text
-https://<production-url>/docs
-```
-
-Thu lai cac endpoint:
-
-```text
-GET /health
-GET /api/v1/items
-POST /api/v1/items
-```
-
-Diem can noi:
-
-```text
-Day la public HTTPS URL duoc deploy tren nen tang mien phi. API khong chi chay local ma da co the truy cap tu internet.
-```
-
-### Buoc 4: Show production logs
-
-Mo dashboard deploy, vao tab Logs.
-
-Sau do goi API production:
+Hoặc chạy:
 
 ```powershell
-curl https://<production-url>/health
-curl https://<production-url>/api/v1/items
-curl -X POST https://<production-url>/api/v1/items -H "Content-Type: application/json" -d "{\"name\":\"live-demo-item\"}"
+.\scripts\demo-api.ps1 -Scenario health
 ```
 
-Can show trong log:
+Cần show:
 
-- Request log co method, path, status code, duration.
-- Audit log khi tao item.
-- Error log neu goi endpoint loi co chu dich.
+- API có HTTPS public URL.
+- `/health` trả `environment=production`.
+- Swagger UI mở được và liệt kê các endpoint.
 
-Noi ngan gon:
+### 2. Logs và audit logs
 
-```text
-Logs dang o dang co cau truc nen co the tim kiem, loc theo event, status code hoac endpoint tren moi truong production.
-```
+Mở Render Dashboard -> service `week-10-observability-api` -> tab `Logs`.
 
-### Buoc 5: Show metrics
-
-Mo tren trinh duyet:
-
-```text
-https://<production-url>/metrics
-```
-
-Hoac dung terminal:
+Chạy:
 
 ```powershell
-curl https://<production-url>/metrics
+.\scripts\demo-api.ps1 -Scenario items
 ```
 
-Can chi ra cac nhom metrics:
+Cần show trong logs:
 
-- Tong so request.
-- Latency request.
-- Status code 2xx, 4xx, 5xx.
-- Endpoint/path neu instrumentation co expose.
+- `event=request_completed` cho request log.
+- `method`, `path`, `status_code`, `duration_ms`.
+- `event=audit_event` khi tạo item.
+- `action=item_created` và `resource_id` của item vừa tạo.
 
-Noi ngan gon:
+Ý chính khi trình bày:
 
 ```text
-Endpoint /metrics dung dinh dang Prometheus, co the duoc Prometheus scrape de ve dashboard Grafana sau nay.
+API ghi log có cấu trúc để quan sát request và ghi audit log cho thao tác thay đổi dữ liệu.
 ```
 
-### Buoc 6: Show rate limiting
+### 3. Metrics Prometheus
 
-Dung PowerShell goi nhanh endpoint bi gioi han:
+Chạy:
 
 ```powershell
-1..12 | ForEach-Object {
-  curl -X POST https://<production-url>/api/v1/items `
-    -H "Content-Type: application/json" `
-    -d "{\"name\":\"rate-limit-demo-$_\"}"
-}
+.\scripts\demo-api.ps1 -Scenario metrics
 ```
 
-Ket qua can show:
-
-- Mot so request dau thanh cong.
-- Sau khi vuot nguong, API tra ve `429 Too Many Requests`.
-- Dashboard logs co request bi chan do rate limit.
-- Gia tri hien tai: `POST /api/v1/items` bi gioi han `10/minute`.
-
-Neu muon test local thi thay production URL bang:
+Sau đó mở:
 
 ```text
-http://127.0.0.1:8000
+https://week-10-observability-api.onrender.com/metrics
 ```
 
-### Buoc 7: Show circuit breaker
+Cần show:
 
-Endpoint demo:
+- Metrics dạng Prometheus text format.
+- Các metric HTTP request/latency/status code.
+- Custom metric `items_created_total`.
+
+Ý chính khi trình bày:
 
 ```text
-GET /api/v1/external/status
+/metrics có thể được Prometheus scrape để theo dõi request count, latency và lỗi trên production.
 ```
 
-Kich ban can show:
+### 4. Rate limiting
 
-1. Dat `EXTERNAL_FAILURE_MODE=true` trong `.env` local hoac trong Environment Variables cua Render.
-2. Restart API de config moi co hieu luc.
-3. Goi endpoint nhieu lan:
+Chạy riêng scenario này vì nó cố ý tạo lỗi:
 
 ```powershell
-1..6 | ForEach-Object {
-  curl https://<production-url>/api/v1/external/status
-}
+.\scripts\demo-api.ps1 -Scenario rate-limit
 ```
 
-4. Sau 3 lan fail, circuit breaker open.
-5. API tra ve `503 Service Unavailable` nhanh.
-6. Logs co event `circuit_state_changed` va `external_circuit_open`.
+Cần show:
 
-Response mau khi circuit open:
+- Một số request đầu tạo item thành công.
+- Khi vượt giới hạn, API trả `429 Too Many Requests`.
+- Render Logs có `event=rate_limit_exceeded`.
 
-```json
-{
-  "detail": "External service circuit is open"
-}
-```
-
-### Buoc 8: Show environment variables va secret handling
-
-Mo tab Environment tren dashboard deploy.
-
-Chi show cac bien khong nhay cam, vi du:
+Giới hạn hiện tại:
 
 ```text
-APP_ENV=production
-LOG_LEVEL=INFO
-RATE_LIMIT_DEFAULT=60/minute
-RATE_LIMIT_WRITE=10/minute
-RATE_LIMIT_EXTERNAL=5/minute
+POST /api/v1/items = 10/minute
+GET /api/v1/external/status = 5/minute
+```
+
+Ý chính khi trình bày:
+
+```text
+Rate limiting bảo vệ endpoint public khỏi spam request và lạm dụng tài nguyên.
+```
+
+### 5. Circuit breaker
+
+Trạng thái bình thường:
+
+```powershell
+.\scripts\demo-api.ps1 -Scenario external
+```
+
+Khi `EXTERNAL_FAILURE_MODE=false`, endpoint external trả `200`.
+
+Để giả lập lỗi:
+
+1. Mở Render Dashboard -> tab `Environment`.
+2. Đổi `EXTERNAL_FAILURE_MODE=true`.
+3. Chờ Render redeploy/restart.
+4. Chạy lại:
+
+```powershell
+.\scripts\demo-api.ps1 -Scenario external
+```
+
+Cần show:
+
+- Một vài request đầu trả `503 External service is unavailable`.
+- Sau 3 lần fail liên tiếp, circuit breaker mở.
+- Các request sau trả `503` nhanh với thông báo circuit open.
+- Render Logs có `external_service_failed`, `circuit_state_changed`, `external_circuit_open`.
+
+Sau demo nhớ đổi lại:
+
+```text
 EXTERNAL_FAILURE_MODE=false
 ```
 
-Khong mo hoac doc secret neu co.
-
-Noi ngan gon:
+Ý chính khi trình bày:
 
 ```text
-Config production duoc dua qua environment variables. Secret khong commit vao source code va khong nam trong repository.
+Circuit breaker giúp API không gọi liên tục vào dependency đang lỗi, giảm latency và giảm tải cho hệ thống.
 ```
 
-### Buoc 9: Noi ve WAF va bao ve production
+### 6. Security production cơ bản
 
-Neu co domain rieng va dung Cloudflare:
+Chạy:
+
+```powershell
+.\scripts\demo-api.ps1 -Scenario security
+```
+
+Cần show:
+
+- Header `X-Content-Type-Options: nosniff`.
+- Header `X-Frame-Options: DENY`.
+- Render Environment chứa config production.
+- File `.env` không được commit, chỉ có `.env.example` làm template.
+
+Ý chính khi trình bày:
 
 ```text
-API co the dat sau Cloudflare Free de co lop proxy/WAF co ban, HTTPS va rule chan traffic xau.
+Demo có các lớp bảo vệ cơ bản ở tầng ứng dụng: environment variables, security headers, validation, rate limiting và audit logs. Nếu có domain riêng có thể đặt thêm Cloudflare Free phía trước để có proxy/WAF cơ bản.
 ```
 
-Neu chua co domain:
+## Checklist trước khi demo
 
-```text
-Trong demo mien phi nay, API da co cac lop bao ve trong ung dung: validation, rate limiting, audit logs va structured error handling. WAF se la lop bo sung khi co domain/proxy nhu Cloudflare.
-```
-
-## 5. Lenh nhanh dung khi demo
-
-Local:
-
-```powershell
-curl http://127.0.0.1:8000/health
-curl http://127.0.0.1:8000/metrics
-curl http://127.0.0.1:8000/api/v1/items
-```
-
-Production:
-
-```powershell
-curl https://<production-url>/health
-curl https://<production-url>/metrics
-curl https://<production-url>/api/v1/items
-```
-
-Tao item:
-
-```powershell
-curl -X POST https://<production-url>/api/v1/items -H "Content-Type: application/json" -d "{\"name\":\"demo-item\"}"
-```
-
-Rate limit:
-
-```powershell
-1..12 | ForEach-Object {
-  curl -X POST https://<production-url>/api/v1/items `
-    -H "Content-Type: application/json" `
-    -d "{\"name\":\"rate-limit-demo-$_\"}"
-}
-```
-
-Circuit breaker:
-
-```powershell
-1..6 | ForEach-Object {
-  curl https://<production-url>/api/v1/external/status
-}
-```
-
-## 6. Checklist truoc khi len demo
-
-- Local API chay duoc.
-- Test local pass voi `.\.venv\Scripts\python.exe -m pytest`.
-- Production URL mo duoc.
-- `/docs` production mo duoc.
-- `/metrics` production mo duoc.
-- Logs dashboard dang hien request moi.
-- Rate limit co the tao ra `429`.
-- Circuit breaker co the tao ra `503`.
-- Environment variables da cau hinh tren platform deploy.
-- Khong co `.env` hoac secret bi commit.
-
-## 7. Phan se cap nhat sau khi code API xong
-
-- Production URL that.
-- Ten service deploy that.
-- Neu deploy tren nen tang khac Render, cap nhat build command/start command theo platform do.
+- Mở sẵn Render Logs.
+- Mở sẵn Swagger UI.
+- Chạy thử `.\scripts\demo-api.ps1 -Scenario health`.
+- Chạy thử `.\scripts\demo-api.ps1 -Scenario items` để chắc logs hiện ra.
+- Chỉ chạy `rate-limit` và `external` khi tới đúng phần demo vì hai phần này cố ý tạo lỗi.
