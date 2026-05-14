@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: week-10-observability-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_NAME
+        value: week-10-observability-api
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: RATE_LIMIT_DEFAULT
+        value: 60/minute
+      - key: RATE_LIMIT_WRITE
+        value: 10/minute
+      - key: RATE_LIMIT_EXTERNAL
+        value: 5/minute
+      - key: EXTERNAL_SERVICE_URL
+        value: https://httpbin.org/status/200
+      - key: EXTERNAL_FAILURE_MODE
+        value: "false"
+      - key: CIRCUIT_FAIL_MAX
+        value: "3"
+      - key: CIRCUIT_RESET_TIMEOUT_SECONDS
+        value: "30"
