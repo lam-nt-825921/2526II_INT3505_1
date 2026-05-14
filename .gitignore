@@ -13,6 +13,12 @@ __pycache__/
 venv/
 env/
 
+# Log/runtime databases
+week_10/logs/
+*.sqlite
+*.sqlite3
+*.db
+
 # IDE / Trình chỉnh sửa
 .vscode/
 .idea/

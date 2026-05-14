@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     app_name: str = Field(default="week-10-observability-api", alias="APP_NAME")
     app_env: str = Field(default="development", alias="APP_ENV")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+    log_db_path: str = Field(default="logs/app_logs.sqlite3", alias="LOG_DB_PATH")
+    log_viewer_api_key: str = Field(default="", alias="LOG_VIEWER_API_KEY")
 
     cors_origins: str = Field(default="*", alias="CORS_ORIGINS")
     rate_limit_default: str = Field(default="60/minute", alias="RATE_LIMIT_DEFAULT")

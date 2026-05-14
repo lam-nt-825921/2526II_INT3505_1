@@ -13,10 +13,10 @@ from app.config import get_settings
 from app.logging_config import configure_logging
 from app.metrics import setup_metrics
 from app.rate_limit import limiter
-from app.routes import external, health, items
+from app.routes import external, health, items, logs
 
 settings = get_settings()
-configure_logging(settings.log_level)
+configure_logging(settings.log_level, settings.log_db_path)
 logger = logging.getLogger(__name__)
 
 
@@ -69,6 +69,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(items.router)
     app.include_router(external.router)
+    app.include_router(logs.router)
     setup_metrics(app)
 
     return app

@@ -65,13 +65,25 @@ Cần show:
 
 ### 2. Logs và audit logs
 
-Mở Render Dashboard -> service `week-10-observability-api` -> tab `Logs`.
+Demo có hai nơi xem log:
+
+- Log JSON trên Render Dashboard -> service `week-10-observability-api` -> tab `Logs`.
+- Log do API tự lưu trong SQLite, xem qua endpoint `/admin/logs`.
 
 Chạy:
 
 ```powershell
 .\scripts\demo-api.ps1 -Scenario items
 ```
+
+Sau đó mở:
+
+```text
+https://week-10-observability-api.onrender.com/admin/logs?limit=20
+https://week-10-observability-api.onrender.com/admin/logs?event=audit_event
+```
+
+Nếu cấu hình `LOG_VIEWER_API_KEY` trên Render, cần gửi thêm header `X-Log-Viewer-Key`.
 
 Cần show trong logs:
 
@@ -83,7 +95,7 @@ Cần show trong logs:
 Ý chính khi trình bày:
 
 ```text
-API ghi log có cấu trúc để quan sát request và ghi audit log cho thao tác thay đổi dữ liệu.
+API ghi log có cấu trúc ra stdout cho nền tảng deploy, đồng thời lưu một bản vào SQLite để tự truy vấn request log và audit log.
 ```
 
 ### 3. Metrics Prometheus
