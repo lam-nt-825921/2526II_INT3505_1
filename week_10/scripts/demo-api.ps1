@@ -1,6 +1,6 @@
 param(
     [string]$BaseUrl = "https://week-10-observability-api.onrender.com",
-    [ValidateSet("health", "items", "metrics", "rate-limit", "external", "security", "all")]
+    [ValidateSet("health", "items", "metrics", "trace", "rate-limit", "external", "security", "all")]
     [string]$Scenario = "all"
 )
 
@@ -39,12 +39,28 @@ function Invoke-DemoRequest {
         return $response
     }
     catch {
-        $status = $_.Exception.Response.StatusCode.value__
+        $response = $_.Exception.Response
+        $status = $null
+        if ($response) {
+            $status = $response.StatusCode.value__
+        }
+        if (-not $status -and $response) {
+            $status = [int]$response.StatusCode
+        }
+
         if ($status) {
             Write-Host "Status: $status" -ForegroundColor Red
             try {
-                $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
-                Write-Host $reader.ReadToEnd()
+                if ($_.ErrorDetails.Message) {
+                    Write-Host $_.ErrorDetails.Message
+                }
+                elseif ($response.Content) {
+                    Write-Host $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+                }
+                elseif ($response.PSObject.Methods.Name -contains "GetResponseStream") {
+                    $reader = New-Object System.IO.StreamReader($response.GetResponseStream())
+                    Write-Host $reader.ReadToEnd()
+                }
             }
             catch {
                 Write-Host $_.Exception.Message
@@ -87,6 +103,17 @@ function Demo-Metrics {
     }
 }
 
+function Demo-Trace {
+    Write-Step "Internal request trace"
+    $response = Invoke-DemoRequest -Path "/health"
+    if ($response) {
+        $traceId = $response.Headers["X-Trace-ID"]
+        Write-Host ""
+        Write-Host "Trace ID: $traceId" -ForegroundColor Cyan
+        Invoke-DemoRequest -Path "/admin/traces/$traceId" | Out-Null
+    }
+}
+
 function Demo-RateLimit {
     Write-Step "Rate limiting on POST /api/v1/items"
     1..12 | ForEach-Object {
@@ -122,6 +149,7 @@ switch ($Scenario) {
     "health" { Demo-Health }
     "items" { Demo-Items }
     "metrics" { Demo-Metrics }
+    "trace" { Demo-Trace }
     "rate-limit" { Demo-RateLimit }
     "external" { Demo-External }
     "security" { Demo-Security }
@@ -129,6 +157,7 @@ switch ($Scenario) {
         Demo-Health
         Demo-Items
         Demo-Metrics
+        Demo-Trace
         Demo-Security
         Write-Host ""
         Write-Host "Run rate-limit and external separately during the demo because they intentionally produce errors." -ForegroundColor Magenta

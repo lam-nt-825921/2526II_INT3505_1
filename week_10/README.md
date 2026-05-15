@@ -34,6 +34,7 @@ Các scenario có sẵn:
 health      Kiểm tra /health và /ready
 items       Tạo item, list item, đồng thời tạo audit log
 metrics     Gọi API rồi đọc /metrics
+trace       Gọi API, lấy X-Trace-ID rồi xem /admin/traces/{trace_id}
 rate-limit  Gửi nhiều POST request để tạo lỗi 429
 external    Gọi external dependency để demo circuit breaker
 security    Kiểm tra security headers
@@ -124,7 +125,34 @@ Cần show:
 /metrics có thể được Prometheus scrape để theo dõi request count, latency và lỗi trên production.
 ```
 
-### 4. Rate limiting
+### 4. Internal tracing
+
+Chạy:
+
+```powershell
+.\scripts\demo-api.ps1 -Scenario trace
+```
+
+Script sẽ gọi `/health`, lấy header `X-Trace-ID`, rồi mở:
+
+```text
+https://week-10-observability-api.onrender.com/admin/traces/{trace_id}
+```
+
+Cần show:
+
+- Response API có `X-Trace-ID` và header chuẩn `traceparent`.
+- Trace response có `trace_id`, `service`, `root_span`, `events`.
+- Các event cùng trace gồm `request_started` và `request_completed`.
+- Với endpoint external hoặc tạo item, cùng `trace_id` sẽ gom thêm `external_call_*` hoặc `audit_event`.
+
+Ý chính khi trình bày:
+
+```text
+Vì demo là mono service, app dùng internal tracing bằng trace_id để gom các log/event của một request. Khi hệ thống tách nhiều service, có thể nâng cấp sang OpenTelemetry và collector như Jaeger hoặc Tempo.
+```
+
+### 5. Rate limiting
 
 Chạy riêng scenario này vì nó cố ý tạo lỗi:
 
@@ -151,7 +179,7 @@ GET /api/v1/external/status = 5/minute
 Rate limiting bảo vệ endpoint public khỏi spam request và lạm dụng tài nguyên.
 ```
 
-### 5. Circuit breaker
+### 6. Circuit breaker
 
 Trạng thái bình thường:
 
@@ -191,7 +219,7 @@ EXTERNAL_FAILURE_MODE=false
 Circuit breaker giúp API không gọi liên tục vào dependency đang lỗi, giảm latency và giảm tải cho hệ thống.
 ```
 
-### 6. Security production cơ bản
+### 7. Security production cơ bản
 
 Chạy:
 

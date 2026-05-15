@@ -52,6 +52,8 @@ def initialize_log_store(db_path: str) -> None:
                 duration_ms REAL,
                 client_ip TEXT,
                 request_id TEXT,
+                trace_id TEXT,
+                span_name TEXT,
                 action TEXT,
                 resource TEXT,
                 resource_id TEXT,
@@ -65,6 +67,25 @@ def initialize_log_store(db_path: str) -> None:
         connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_application_logs_event ON application_logs(event)"
         )
+        _ensure_column(connection, "application_logs", "trace_id", "TEXT")
+        _ensure_column(connection, "application_logs", "span_name", "TEXT")
+        connection.execute(
+            "CREATE INDEX IF NOT EXISTS idx_application_logs_trace_id ON application_logs(trace_id)"
+        )
+
+
+def _ensure_column(
+    connection: sqlite3.Connection,
+    table_name: str,
+    column_name: str,
+    column_type: str,
+) -> None:
+    columns = {
+        row[1]
+        for row in connection.execute(f"PRAGMA table_info({table_name})").fetchall()
+    }
+    if column_name not in columns:
+        connection.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
 
 
 def _json_default(value: Any) -> str:
@@ -91,6 +112,8 @@ def record_to_row(record: logging.LogRecord) -> dict[str, Any]:
         "duration_ms": details.get("duration_ms"),
         "client_ip": details.get("client_ip"),
         "request_id": details.get("request_id"),
+        "trace_id": details.get("trace_id"),
+        "span_name": details.get("span_name"),
         "action": details.get("action"),
         "resource": details.get("resource"),
         "resource_id": details.get("resource_id"),
@@ -112,13 +135,13 @@ class SQLiteLogHandler(logging.Handler):
                     """
                     INSERT INTO application_logs (
                         timestamp, level, logger, event, message, method, path,
-                        status_code, duration_ms, client_ip, request_id, action,
-                        resource, resource_id, details
+                        status_code, duration_ms, client_ip, request_id, trace_id,
+                        span_name, action, resource, resource_id, details
                     )
                     VALUES (
                         :timestamp, :level, :logger, :event, :message, :method, :path,
-                        :status_code, :duration_ms, :client_ip, :request_id, :action,
-                        :resource, :resource_id, :details
+                        :status_code, :duration_ms, :client_ip, :request_id, :trace_id,
+                        :span_name, :action, :resource, :resource_id, :details
                     )
                     """,
                     row,
@@ -133,6 +156,9 @@ def fetch_logs(
     limit: int = 100,
     event: str | None = None,
     level: str | None = None,
+    request_id: str | None = None,
+    trace_id: str | None = None,
+    order: str = "DESC",
 ) -> list[dict[str, Any]]:
     initialize_log_store(db_path)
     filters: list[str] = []
@@ -144,8 +170,15 @@ def fetch_logs(
     if level:
         filters.append("level = :level")
         params["level"] = level.upper()
+    if request_id:
+        filters.append("request_id = :request_id")
+        params["request_id"] = request_id
+    if trace_id:
+        filters.append("trace_id = :trace_id")
+        params["trace_id"] = trace_id
 
     where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
+    order_direction = "ASC" if order.upper() == "ASC" else "DESC"
 
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -153,11 +186,11 @@ def fetch_logs(
             f"""
             SELECT
                 id, timestamp, level, logger, event, message, method, path,
-                status_code, duration_ms, client_ip, request_id, action,
-                resource, resource_id, details
+                status_code, duration_ms, client_ip, request_id, trace_id,
+                span_name, action, resource, resource_id, details
             FROM application_logs
             {where_clause}
-            ORDER BY id DESC
+            ORDER BY id {order_direction}
             LIMIT :limit
             """,
             params,
@@ -169,3 +202,7 @@ def fetch_logs(
         log["details"] = json.loads(log["details"])
         logs.append(log)
     return logs
+
+
+def fetch_trace_logs(db_path: str, trace_id: str) -> list[dict[str, Any]]:
+    return fetch_logs(db_path, limit=500, trace_id=trace_id, order="ASC")

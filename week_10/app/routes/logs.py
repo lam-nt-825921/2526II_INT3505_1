@@ -13,6 +13,8 @@ async def list_application_logs(
     limit: int = Query(default=100, ge=1, le=500),
     event: str | None = None,
     level: str | None = None,
+    request_id: str | None = None,
+    trace_id: str | None = None,
     x_log_viewer_key: str | None = Header(default=None),
 ) -> dict[str, Any]:
     settings = get_settings()
@@ -27,6 +29,8 @@ async def list_application_logs(
         limit=limit,
         event=event,
         level=level,
+        request_id=request_id,
+        trace_id=trace_id,
     )
     return {
         "count": len(logs),

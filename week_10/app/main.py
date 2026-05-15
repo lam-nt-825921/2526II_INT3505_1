@@ -13,7 +13,8 @@ from app.config import get_settings
 from app.logging_config import configure_logging
 from app.metrics import setup_metrics
 from app.rate_limit import limiter
-from app.routes import external, health, items, logs
+from app.routes import external, health, items, logs, traces
+from app.trace_context import extract_trace_id, traceparent_from_trace_id
 
 settings = get_settings()
 configure_logging(settings.log_level, settings.log_db_path)
@@ -42,13 +43,30 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def request_logging_middleware(request: Request, call_next):
         request_id = request.headers.get("X-Request-ID", str(uuid4()))
+        trace_id = extract_trace_id(request.headers.get("traceparent"))
         request.state.request_id = request_id
+        request.state.trace_id = trace_id
         start = time.perf_counter()
+
+        logger.info(
+            "request_started",
+            extra={
+                "event": "request_started",
+                "span_name": f"HTTP {request.method} {request.url.path}",
+                "request_id": request_id,
+                "trace_id": trace_id,
+                "method": request.method,
+                "path": request.url.path,
+                "client_ip": get_remote_address(request),
+            },
+        )
 
         response = await call_next(request)
         duration_ms = round((time.perf_counter() - start) * 1000, 2)
 
         response.headers["X-Request-ID"] = request_id
+        response.headers["X-Trace-ID"] = trace_id
+        response.headers["traceparent"] = traceparent_from_trace_id(trace_id)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
 
@@ -56,7 +74,9 @@ def create_app() -> FastAPI:
             "request_completed",
             extra={
                 "event": "request_completed",
+                "span_name": f"HTTP {request.method} {request.url.path}",
                 "request_id": request_id,
+                "trace_id": trace_id,
                 "method": request.method,
                 "path": request.url.path,
                 "status_code": response.status_code,
@@ -70,6 +90,7 @@ def create_app() -> FastAPI:
     app.include_router(items.router)
     app.include_router(external.router)
     app.include_router(logs.router)
+    app.include_router(traces.router)
     setup_metrics(app)
 
     return app
@@ -84,6 +105,8 @@ async def _rate_limit_handler(request: Request, exc: RateLimitExceeded):
             "client_ip": get_remote_address(request),
             "limit": str(exc.detail),
             "request_id": getattr(request.state, "request_id", None),
+            "trace_id": getattr(request.state, "trace_id", None),
+            "span_name": f"HTTP {request.method} {request.url.path}",
         },
     )
     return JSONResponse(

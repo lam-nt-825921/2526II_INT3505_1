@@ -23,6 +23,8 @@ def write_audit_event(
             "resource_id": resource_id,
             "client_ip": request.client.host if request.client else "unknown",
             "request_id": getattr(request.state, "request_id", None),
+            "trace_id": getattr(request.state, "trace_id", None),
+            "span_name": "audit.write",
             "audit_timestamp": datetime.now(UTC).isoformat(),
             "metadata": metadata or {},
         },
